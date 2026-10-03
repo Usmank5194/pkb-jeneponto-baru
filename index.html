@@ -74,10 +74,6 @@ footer a{color:#fff}
 <label>Butir SKP *</label><select id="lSkp" required></select>
 <label>Judul laporan *</label><input id="lJudul" required>
 <div class="two"><div><label>Tanggal *</label><input id="lTgl" type="date" required></div><div><label>Jumlah realisasi *</label><input id="lJml" type="number" min="1" value="1" required></div></div>
-<label>Lokasi *</label><input id="lLok" required>
-<label>Isi laporan *</label><textarea id="lIsi" rows="4" required></textarea>
-<label>Link bukti dukung (opsional)</label><input id="lBukti" type="url" placeholder="https://">
-<button>Simpan sebagai draf</button></form>
 <div id="lapList"></div></section>
 
 <section id="keg"></section><section id="ren"></section><section id="edu"></section>
@@ -140,7 +136,7 @@ function genSec(){for(const k in C){D[k]=D[k]||[];const [t,s,F]=C[k];
  const item=x=>`<article class="card"><h3>${esc(x.judul)}</h3><p class="meta">${F.filter(f=>!['judul','desk','link'].includes(f[0])).map(f=>esc(f[0]=='skp'?'SKP '+nm(x.skp):x[f[0]])).join(' · ')}</p><p>${esc(x.desk).replace(/\n/g,'<br>')}</p>${/^https?:/.test(x.link||'')?`<a href="${esc(x.link)}" rel="noopener">Buka file</a>`:''}<div class="onlyadmin"><button class="red" onclick="delG('${k}','${x.id}')">Hapus</button></div></article>`;
  $(k).innerHTML=`<h2>${t}</h2><p class="sub">${s}</p><form class="admin" onsubmit="addG('${k}',event)">${F.map(inp).join('')}<button>Tambah</button></form>`+(D[k].length?D[k].map(item).join(''):'<div class="empty">Belum ada data.</div>')}}
 function addG(k,e){e.preventDefault();const o={t:Date.now()};C[k][2].forEach(([n])=>o[n]=$(k+'_'+n).value);db.collection(k).add(o).catch(werr);e.target.reset()}
-function delG(k,id){if(confirm('Hapus data ini?'))db.collection(k).doc(id).delete().catch(werr)}}
+function delG(k,id){if(confirm('Hapus data ini?'))db.collection(k).doc(id).delete().catch(werr)}
 $('loginBtn').onclick=()=>{if(au.currentUser){au.signOut();return}
  const em=prompt('Email admin');if(!em)return;const pw=prompt('Sandi admin');if(!pw)return;
  au.signInWithEmailAndPassword(em,pw).catch(()=>alert('Email atau sandi salah.'))};
@@ -151,8 +147,8 @@ function st(id,s){db.collection('lap').doc(id).update({status:s}).catch(werr)}
 function setuju(id){const p=prompt('Nama pejabat penilai yang menyetujui',PEJABAT);if(!p)return;
  const t=prompt('Tanggal persetujuan (YYYY-MM-DD)',new Date().toISOString().slice(0,10));if(!t)return;
  db.collection('lap').doc(id).update({status:'Disetujui',pejabat:p,tglSetuju:t}).catch(werr)}
-function hapusLap(id){if(confirm('Hapus laporan ini?'))db.collection('lap').doc(id).delete().catch(werr)}}
-function hapusFoto(id){if(confirm('Hapus foto ini dari galeri?'))db.collection('foto').doc(id).delete().catch(werr)}}
+function hapusLap(id){if(confirm('Hapus laporan ini?'))db.collection('lap').doc(id).delete().catch(werr)}
+function hapusFoto(id){if(confirm('Hapus foto ini dari galeri?'))db.collection('foto').doc(id).delete().catch(werr)}
 function kompres(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
  const k=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;
  c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.7))};im.src=r.result};r.readAsDataURL(file)})}
