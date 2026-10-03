@@ -95,6 +95,14 @@ nav a.on{background:var(--ink);color:#fff}
 .pick img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:4px solid transparent;display:block}
 .pick input:checked+img{border-color:var(--gold)}
 .pick input:focus-visible+img{outline:3px solid var(--sea)}
+#lb{width:100vw;height:100vh;max-width:100vw;max-height:100vh;padding:0;border-radius:0;background:rgba(0,0,0,.95);color:#fff;box-shadow:none}
+#lb[open]{display:flex;flex-direction:column;align-items:center;justify-content:center}
+#lbImg{max-width:100%;max-height:82vh;object-fit:contain}
+#lbCap{margin:12px 16px 0;text-align:center}
+.lbx,.lbn{position:absolute;background:rgba(255,255,255,.18);color:#fff;border-radius:50%;width:46px;height:46px;font-size:1.6rem;line-height:1;padding:0}
+.lbx{top:max(12px,env(safe-area-inset-top));right:12px}
+.lbn{top:50%;left:8px}.lbn.r{left:auto;right:8px}
+.lf img,#galList img{cursor:zoom-in}
 </style></head><body>
 <nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div class="bar-admin"><b>Mode admin</b><button class="alt" onclick="exp()">Ekspor cadangan</button></div>
@@ -136,6 +144,7 @@ nav a.on{background:var(--ink);color:#fff}
 
 <section id="kontak"><h2>Kontak</h2>
 <p><a href="mailto:usmanksiga@gmail.com">usmanksiga@gmail.com</a><br><a href="https://wa.me/6281333378883">WhatsApp 081333378883</a><br><a href="https://instagram.com/usmank5194">@usmank5194</a></p></section>
+<dialog id="lb" onclick="if(event.target===this)this.close()"><button class="lbx" aria-label="Tutup" onclick="$('lb').close()">×</button><button class="lbn" id="lbP" aria-label="Sebelumnya" onclick="lbGo(-1)">‹</button><img id="lbImg" alt=""><button class="lbn r" id="lbN" aria-label="Berikutnya" onclick="lbGo(1)">›</button><p id="lbCap"></p></dialog>
 <dialog id="dlg"><form id="lgForm"><h3>Masuk Admin</h3><p class="meta">Khusus pengelola website.</p><label>Email</label><input id="lgEm" type="email" autocomplete="username" required><label>Sandi</label><input id="lgPw" type="password" autocomplete="current-password" required><p id="lgErr" style="color:var(--bad);margin:0 0 8px"></p><div style="display:flex;gap:8px"><button>Masuk</button><button type="button" class="alt" onclick="$('dlg').close()">Batal</button></div></form></dialog>
 <dialog id="wdlg"><form id="wForm"><h3>Data Wilayah</h3><label>Nama wilayah *</label><input id="wNama" required><label>Jenis</label><select id="wJenis"><option>Utama</option><option>Pendukung</option></select><label>Variabel (nama dan jumlah)</label>
 <datalist id="vs"><option value="Lingkungan"><option value="Keluarga (KK)"><option value="PUS"><option value="Jiwa"><option value="Baduta"><option value="Ibu hamil"><option value="Lansia"><option value="Remaja"><option value="Peserta KB aktif"></datalist>
@@ -241,7 +250,7 @@ function setuju(id){const p=prompt('Nama pejabat penilai yang menyetujui',PEJABA
 function hapusLap(id){if(confirm('Hapus laporan ini?'))db.collection('lap').doc(id).delete().catch(werr)}
 function hapusFoto(id){if(confirm('Hapus foto ini dari galeri?'))db.collection('foto').doc(id).delete().catch(werr)}
 function kompres(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
- const k=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;
+ const k=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;
  c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.7))};im.src=r.result};r.readAsDataURL(file)})}
 async function addFoto(){const fs=$('fFile').files,cap=$('fCap').value.trim();
  if(!fs.length||!cap){alert('Pilih foto dan isi keterangan.');return}
@@ -260,5 +269,10 @@ const PG=['skp','laporan','keg','ren','edu','galeri','tentang','kontak'];
 function go(){let h=(location.hash||'#skp').slice(1);if(!PG.includes(h))h='skp';
  document.querySelectorAll('section').forEach(e=>{e.hidden=e.classList.contains('hero')?h!='skp':!(e.id==h||(h=='skp'&&e.id=='wil'))});
  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+h));scrollTo(0,0)}
+const LB={g:[],i:0};
+function lbShow(){const im=LB.g[LB.i];$('lbImg').src=im.src;$('lbImg').alt=im.alt;$('lbCap').textContent=im.alt;$('lbP').hidden=$('lbN').hidden=LB.g.length<2}
+function lbGo(d){LB.i=(LB.i+d+LB.g.length)%LB.g.length;lbShow()}
+document.addEventListener('click',e=>{const im=e.target.closest&&e.target.closest('.lf img,#galList img');if(!im)return;
+ LB.g=[...im.closest('.lf,#galList').querySelectorAll('img')];LB.i=LB.g.indexOf(im);lbShow();$('lb').showModal()});
 addEventListener('hashchange',go);go();
 </script></body></html>
