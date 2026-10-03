@@ -77,16 +77,26 @@ dialog{border:0;border-radius:18px;padding:24px;width:min(92vw,380px);box-shadow
 dialog::backdrop{background:rgba(10,25,35,.6);backdrop-filter:blur(3px)}
 [hidden]{display:none!important}
 nav a.on{background:var(--ink);color:#fff}
+[hidden]{display:none!important}
+.wg{display:grid;gap:12px}
+@media(min-width:700px){.wg{grid-template-columns:1fr 1fr}}
+.wc.ut{border:2px solid var(--gold)}
+.wv2{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin:10px 0}
+.wv2 div{background:var(--mist);border-radius:10px;padding:8px 10px}
+.wv2 b{display:block;font-size:1.25rem}.wv2 span{font-size:.8rem;color:#51697a}
+.wr{display:grid;grid-template-columns:1fr 100px 42px;gap:6px;align-items:start}
+.wr button{padding:9px 0;margin:4px 0 10px}
 </style></head><body>
 <nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div class="bar-admin"><b>Mode admin</b><button class="alt" onclick="exp()">Ekspor cadangan</button></div>
 
 <section class="hero"><div><div class="pw"><img class="ph" id="ph" alt="Foto Usman Hasan" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23244b5f'/%3E%3Ctext x='50' y='62' font-size='36' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3EUH%3C/text%3E%3C/svg%3E"><label class="btn alt onlyadmin" style="display:block;margin-top:10px">Ganti foto<input type="file" accept="image/*" hidden onchange="setProfil(this)"></label></div><div class="t">
 <h1>Usman Hasan, Penyuluh KB</h1>
-<p>Mendampingi keluarga di Kelurahan Empoang Selatan, Kecamatan Binamu, Jeneponto. Setiap laporan di sini terhubung ke capaian SKP dan baru tampil setelah disetujui pimpinan.</p>
-<div class="stats"><div><b>8</b>lingkungan</div><div><b>1.535</b>keluarga</div><div><b>874</b>PUS</div><div><b>5.076</b>jiwa</div></div>
+<p id="hText"></p>
+<div class="stats" id="hStats"></div>
 </div></div></section>
 
+<section id="wil"></section>
 <section id="skp"><h2>Capaian SKP <select id="yr" aria-label="Tahun" onchange="Y=this.value;render()" style="width:auto;display:inline-block;font:inherit;font-weight:800;padding:0 6px;margin:0"></select></h2>
 <p class="sub" id="skpSub"></p>
 <div class="skp" id="skpList"></div></section>
@@ -117,6 +127,9 @@ nav a.on{background:var(--ink);color:#fff}
 <section id="kontak"><h2>Kontak</h2>
 <p><a href="mailto:usmanksiga@gmail.com">usmanksiga@gmail.com</a><br><a href="https://wa.me/6281333378883">WhatsApp 081333378883</a><br><a href="https://instagram.com/usmank5194">@usmank5194</a></p></section>
 <dialog id="dlg"><form id="lgForm"><h3>Masuk Admin</h3><p class="meta">Khusus pengelola website.</p><label>Email</label><input id="lgEm" type="email" autocomplete="username" required><label>Sandi</label><input id="lgPw" type="password" autocomplete="current-password" required><p id="lgErr" style="color:var(--bad);margin:0 0 8px"></p><div style="display:flex;gap:8px"><button>Masuk</button><button type="button" class="alt" onclick="$('dlg').close()">Batal</button></div></form></dialog>
+<dialog id="wdlg"><form id="wForm"><h3>Data Wilayah</h3><label>Nama wilayah *</label><input id="wNama" required><label>Jenis</label><select id="wJenis"><option>Utama</option><option>Pendukung</option></select><label>Variabel (nama dan jumlah)</label>
+<datalist id="vs"><option value="Lingkungan"><option value="Keluarga (KK)"><option value="PUS"><option value="Jiwa"><option value="Baduta"><option value="Ibu hamil"><option value="Lansia"><option value="Remaja"><option value="Peserta KB aktif"></datalist>
+<div id="wRows"></div><button type="button" class="alt" onclick="wAdd()">+ Tambah variabel</button><div style="display:flex;gap:8px;margin-top:14px"><button>Simpan</button><button type="button" class="alt" onclick="$('wdlg').close()">Batal</button></div></form></dialog>
 <footer>© 2026 Usman Hasan, Penyuluh KB Kel. Empoang Selatan, Jeneponto</footer>
 
 <script>
@@ -147,19 +160,38 @@ const SKP25=[['1a','Pertemuan penyuluhan BKB',12,'kali',12],['1b','Pertemuan pen
 const SK={2026:SKP,2025:SKP25};
 let Y=String(new Date().getFullYear());if(!SK[Y])Y=Object.keys(SK).sort().pop();
 const cur=()=>SK[Y]||[];
-let D={lap:[],foto:[],keg:[],ren:[],edu:[]};
+let D={lap:[],foto:[],keg:[],ren:[],edu:[],wilayah:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const isA=()=>document.body.classList.contains('isadmin');
 function save(){render()}
 const nm=(id,y)=>{const s=(SK[y||Y]||[]).find(x=>x[0]==id);return s?s[0]+'. '+s[1]:'-'};
+const nf=n=>Number(n).toLocaleString('id-ID');
+function renderW(){const W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.jenis=='Utama'?0:1));
+ const tot={};W.forEach(w=>w.vars.forEach(x=>tot[x.n]=(tot[x.n]||0)+Number(x.v)));
+ $('hStats').innerHTML=Object.entries(tot).map(([n,v])=>`<div><b>${nf(v)}</b>${esc(n)}</div>`).join('');
+ const U=W.filter(w=>w.jenis=='Utama').map(w=>w.nama),P=W.filter(w=>w.jenis!='Utama').map(w=>w.nama);
+ $('hText').textContent='Mendampingi keluarga di Kecamatan Binamu, Jeneponto.'+(U.length?' Wilayah binaan utama: '+U.join(', ')+'.':'')+(P.length?' Pendukung: '+P.join(', ')+'.':'')+' Setiap laporan di sini terhubung ke capaian SKP dan baru tampil setelah disetujui pimpinan.';
+ $('wil').innerHTML=`<h2>Wilayah Binaan</h2><p class="sub">Jumlah penduduk diperbarui berkala oleh admin.</p><div class="admin"><button onclick="wOpen()">+ Tambah wilayah</button> ${W.length?'':'<button class="alt" onclick="seedW()">Isi data awal</button>'}</div>`+(W.length?`<div class="wg">${W.map(w=>`<article class="card wc ${w.jenis=='Utama'?'ut':''}"><span class="tag">${w.jenis=='Utama'?'★ Utama':'Pendukung'}</span><h3>${esc(w.nama)}</h3><div class="wv2">${w.vars.map(x=>`<div><b>${nf(x.v)}</b><span>${esc(x.n)}</span></div>`).join('')}</div><p class="meta">Diperbarui ${esc(w.upd||'-')}</p><div class="onlyadmin"><button onclick="wOpen('${w.id}')">Edit</button> <button class="red" onclick="delW('${w.id}')">Hapus</button></div></article>`).join('')}</div>`:'<div class="empty">Belum ada data wilayah.</div>')}
+let WE='';
+const wRow=(l='',v='')=>`<div class="wr"><input list="vs" placeholder="Nama variabel" value="${esc(l)}" class="wl"><input type="number" min="0" placeholder="Jumlah" value="${esc(v)}" class="wv"><button type="button" class="red" aria-label="Hapus baris" onclick="this.parentNode.remove()">×</button></div>`;
+function wOpen(id){WE=id||'';const w=D.wilayah.find(x=>x.id==id)||{nama:'',jenis:'Pendukung',vars:[{n:'Lingkungan',v:''},{n:'Keluarga (KK)',v:''},{n:'PUS',v:''},{n:'Jiwa',v:''}]};
+ $('wNama').value=w.nama;$('wJenis').value=w.jenis;$('wRows').innerHTML=w.vars.map(x=>wRow(x.n,x.v)).join('');$('wdlg').showModal()}
+function wAdd(){$('wRows').insertAdjacentHTML('beforeend',wRow())}
+$('wForm').onsubmit=e=>{e.preventDefault();
+ const vars=[...document.querySelectorAll('#wRows .wr')].map(r=>({n:r.querySelector('.wl').value.trim(),v:Number(r.querySelector('.wv').value)||0})).filter(x=>x.n);
+ const o={nama:$('wNama').value.trim(),jenis:$('wJenis').value,vars,upd:new Date().toISOString().slice(0,10)},c=db.collection('wilayah');
+ (WE?c.doc(WE).update(o):c.add({...o,t:Date.now()})).then(()=>$('wdlg').close()).catch(werr)};
+function delW(id){if(confirm('Hapus wilayah ini?'))db.collection('wilayah').doc(id).delete().catch(werr)}
+function seedW(){const v=(a,b,c,d)=>[{n:'Lingkungan',v:a},{n:'Keluarga (KK)',v:b},{n:'PUS',v:c},{n:'Jiwa',v:d}],u=new Date().toISOString().slice(0,10);
+ [['Empoang Selatan','Utama',v(8,1535,874,5076)],['Empoang','Pendukung',v(0,0,0,0)],['Sidenre','Pendukung',v(0,0,0,0)],['Biringkassi','Pendukung',v(0,0,0,0)]].forEach(([nama,jenis,vars],i)=>db.collection('wilayah').add({nama,jenis,vars,upd:u,t:Date.now()-i}).catch(werr))}
 function yrUI(){const ys=[...new Set([...Object.keys(SK),...D.lap.map(l=>(l.tgl||'').slice(0,4)).filter(Boolean),Y])].sort().reverse();
  $('yr').innerHTML=ys.map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('');
  $('skpSub').textContent=Y=='2025'?'Realisasi sesuai Dokumen Evaluasi Kinerja Pegawai 2025 (predikat Baik), ditambah laporan yang disetujui.':'Realisasi dihitung dari laporan yang sudah disetujui pimpinan pada tahun ini.'}
 function fillSkp(){const y=($('lTgl').value||'').slice(0,4)||Y,v=$('lSkp').value;
  $('lSkp').innerHTML=(SK[y]||[]).map(s=>`<option value="${s[0]}">${esc(s[0]+'. '+s[1])}</option>`).join('');if(v)$('lSkp').value=v}
 function render(){
- yrUI();
+ yrUI();renderW();
  $('skpList').innerHTML=!cur().length?'<div class="empty">SKP tahun ini belum dimasukkan.</div>':cur().map(([id,t,tg,u,b])=>{
   const r=(b||0)+D.lap.filter(l=>l.skp==id&&l.status=='Disetujui'&&(l.tgl||'').slice(0,4)==Y).reduce((a,l)=>a+Number(l.jml),0);
   const p=Math.min(100,Math.round(r/tg*100));
@@ -211,13 +243,13 @@ const werr=e=>alert('Gagal menyimpan: '+e.message);
 firebase.initializeApp({apiKey:"AIzaSyCgsRF_t-qGLkkv0l1JdeOKy1XFgvE1Nnw",authDomain:"peyeluhkb.firebaseapp.com",projectId:"peyeluhkb",storageBucket:"peyeluhkb.firebasestorage.app",messagingSenderId:"348704213331",appId:"1:348704213331:web:e3826889b66659541979a6"});
 const db=firebase.firestore(),au=firebase.auth();let unsubs=[];
 function listen(){unsubs.forEach(f=>f());unsubs=[];
- ['lap','foto','keg','ren','edu'].forEach(k=>{let q=db.collection(k);if(k=='lap'&&!au.currentUser)q=q.where('status','==','Disetujui');
+ ['lap','foto','keg','ren','edu','wilayah'].forEach(k=>{let q=db.collection(k);if(k=='lap'&&!au.currentUser)q=q.where('status','==','Disetujui');
   unsubs.push(q.onSnapshot(sn=>{D[k]=sn.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.t||0)-(a.t||0));render()},e=>console.error(k,e.message)))})}
 au.onAuthStateChanged(u=>{document.body.classList.toggle('isadmin',!!u);$('loginBtn').textContent=u?'Keluar':'Admin';listen()});
 render();
 const PG=['skp','laporan','keg','ren','edu','galeri','tentang','kontak'];
 function go(){let h=(location.hash||'#skp').slice(1);if(!PG.includes(h))h='skp';
- document.querySelectorAll('section').forEach(e=>{e.hidden=e.classList.contains('hero')?h!='skp':e.id!=h});
+ document.querySelectorAll('section').forEach(e=>{e.hidden=e.classList.contains('hero')?h!='skp':!(e.id==h||(h=='skp'&&e.id=='wil'))});
  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+h));scrollTo(0,0)}
 addEventListener('hashchange',go);go();
 </script></body></html>
