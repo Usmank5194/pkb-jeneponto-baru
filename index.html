@@ -75,18 +75,20 @@ figure{border-radius:14px;box-shadow:0 4px 14px rgba(16,41,58,.1)}
 button,.btn{border-radius:10px}
 dialog{border:0;border-radius:18px;padding:24px;width:min(92vw,380px);box-shadow:0 24px 60px rgba(0,0,0,.4)}
 dialog::backdrop{background:rgba(10,25,35,.6);backdrop-filter:blur(3px)}
+[hidden]{display:none!important}
+nav a.on{background:var(--ink);color:#fff}
 </style></head><body>
-<nav><a href="#skp">Capaian SKP</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a><button id="loginBtn" class="alt">Admin</button></nav>
+<nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div class="bar-admin"><b>Mode admin</b><button class="alt" onclick="exp()">Ekspor cadangan</button></div>
 
 <section class="hero"><div><div class="pw"><img class="ph" id="ph" alt="Foto Usman Hasan" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23244b5f'/%3E%3Ctext x='50' y='62' font-size='36' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3EUH%3C/text%3E%3C/svg%3E"><label class="btn alt onlyadmin" style="display:block;margin-top:10px">Ganti foto<input type="file" accept="image/*" hidden onchange="setProfil(this)"></label></div><div class="t">
 <h1>Usman Hasan, Penyuluh KB</h1>
-<p>Mendampingi keluarga di Kelurahan Empoang Selatan, Kecamatan Binamu, Jeneponto. Setiap laporan di sini terhubung ke capaian SKP 2026 dan baru tampil setelah disetujui pimpinan.</p>
+<p>Mendampingi keluarga di Kelurahan Empoang Selatan, Kecamatan Binamu, Jeneponto. Setiap laporan di sini terhubung ke capaian SKP dan baru tampil setelah disetujui pimpinan.</p>
 <div class="stats"><div><b>8</b>lingkungan</div><div><b>1.535</b>keluarga</div><div><b>874</b>PUS</div><div><b>5.076</b>jiwa</div></div>
 </div></div></section>
 
-<section id="skp"><h2>Capaian SKP 2026</h2>
-<p class="sub">Realisasi dihitung dari laporan yang sudah disetujui pimpinan.</p>
+<section id="skp"><h2>Capaian SKP <select id="yr" aria-label="Tahun" onchange="Y=this.value;render()" style="width:auto;display:inline-block;font:inherit;font-weight:800;padding:0 6px;margin:0"></select></h2>
+<p class="sub" id="skpSub"></p>
 <div class="skp" id="skpList"></div></section>
 
 <section id="laporan"><h2>Berita &amp; Laporan Lapangan</h2>
@@ -94,7 +96,7 @@ dialog::backdrop{background:rgba(10,25,35,.6);backdrop-filter:blur(3px)}
 <form class="admin" id="lapForm">
 <label>Butir SKP *</label><select id="lSkp" required></select>
 <label>Judul laporan *</label><input id="lJudul" required>
-<div class="two"><div><label>Tanggal *</label><input id="lTgl" type="date" required></div><div><label>Jumlah realisasi *</label><input id="lJml" type="number" min="1" value="1" required></div></div>
+<div class="two"><div><label>Tanggal *</label><input id="lTgl" type="date" required onchange="fillSkp()"></div><div><label>Jumlah realisasi *</label><input id="lJml" type="number" min="1" value="1" required></div></div>
 <label>Lokasi *</label><input id="lLok" required>
 <label>Isi laporan *</label><textarea id="lIsi" rows="4" required></textarea>
 <label>Link bukti dukung (opsional)</label><input id="lBukti" type="url" placeholder="https://">
@@ -130,21 +132,42 @@ const SKP=[['1a','Pertemuan penyuluhan BKB',12,'kali'],['1b','Pertemuan penyuluh
 ['14','Pembinaan dan pendampingan TPK (stunting)',12,'laporan'],['15','Peningkatan kualifikasi Kader IMP',1,'laporan'],['16','Faskes mendapat ketersediaan alokon',12,'laporan'],
 ['17','Pembinaan kualitas pelayanan KBKR',12,'laporan'],['18a','Pelaporan YAN KB di SIGA',12,'laporan'],['18b','Pelaporan DALLAP di SIGA',12,'laporan'],
 ['19','Pengembangan kompetensi mandiri',20,'JP'],['20','Validasi data pendataan keluarga',1,'laporan']];
+const SKP25=[['1a','Pertemuan penyuluhan BKB',12,'kali',12],['1b','Pertemuan penyuluhan BKR',12,'kali',12],['1c','Pertemuan penyuluhan BKL',12,'kali',12],
+['2','Fasilitasi edukasi kespro dan gizi PIK Remaja/BKR',2,'kelompok',1],['3a','Fasilitasi peningkatan performa Kampung KB',2,'kampung',2],
+['3b','Pendampingan ibu hamil dan pascapersalinan',12,'laporan',12],['3c','Pembinaan 1000 HPK keluarga baduta',35,'keluarga',35],
+['4','Kelompok kegiatan penguatan program terbentuk',1,'kelompok',3],['5a','Peserta KB aktif MKJP',15,'peserta',82],['5b','Peserta KB aktif Non-MKJP',80,'peserta',123],
+['6','KIE dan konseling',12,'kali',12],['7','Advokasi program ke pemangku kepentingan',4,'laporan',4],['8','Kegiatan mekanisme operasional',1,'laporan',1],
+['9','Pendataan sarana balai penyuluhan KB, IMP dan Sub-IMP',6,'data',6],['10a','Genting: edukasi sasaran intervensi',15,'sasaran',39],
+['10b','Lansia diperiksa kesehatan dan ikut sekolah lansia',10,'lansia',15],['10c','Konsorsium ayah teladan di Kampung KB',1,'SK',1],
+['11','Pembinaan dan pendampingan TPK (stunting)',12,'laporan',12],['12','Pencatatan dan pelaporan Kampung KB (web)',12,'laporan',12],
+['13','Pelaporan Rumah Data Kependudukan',1,'laporan',1],['14','Fasilitasi BKB Holistik Integratif',1,'laporan',1],['15','Faskes mendapat ketersediaan alokon',6,'laporan',6],
+['16','Pembinaan kualitas pelayanan KBKR',12,'laporan',12],['17','Mekanisme operasional di lini lapangan',12,'laporan',12],
+['18a','Pelaporan YAN KB di SIGA',12,'laporan',12],['18b','Pelaporan DALLAP di SIGA',12,'laporan',12],
+['19','Validasi data pendataan keluarga',1,'laporan',1],['20','Naskah media promosi Program Bangga Kencana',3,'naskah',3]];
+const SK={2026:SKP,2025:SKP25};
+let Y=String(new Date().getFullYear());if(!SK[Y])Y=Object.keys(SK).sort().pop();
+const cur=()=>SK[Y]||[];
 let D={lap:[],foto:[],keg:[],ren:[],edu:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const isA=()=>document.body.classList.contains('isadmin');
 function save(){render()}
-const nm=id=>{const s=SKP.find(x=>x[0]==id);return s?s[0]+'. '+s[1]:'-'};
+const nm=(id,y)=>{const s=(SK[y||Y]||[]).find(x=>x[0]==id);return s?s[0]+'. '+s[1]:'-'};
+function yrUI(){const ys=[...new Set([...Object.keys(SK),...D.lap.map(l=>(l.tgl||'').slice(0,4)).filter(Boolean),Y])].sort().reverse();
+ $('yr').innerHTML=ys.map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('');
+ $('skpSub').textContent=Y=='2025'?'Realisasi sesuai Dokumen Evaluasi Kinerja Pegawai 2025 (predikat Baik), ditambah laporan yang disetujui.':'Realisasi dihitung dari laporan yang sudah disetujui pimpinan pada tahun ini.'}
+function fillSkp(){const y=($('lTgl').value||'').slice(0,4)||Y,v=$('lSkp').value;
+ $('lSkp').innerHTML=(SK[y]||[]).map(s=>`<option value="${s[0]}">${esc(s[0]+'. '+s[1])}</option>`).join('');if(v)$('lSkp').value=v}
 function render(){
- $('skpList').innerHTML=SKP.map(([id,t,tg,u])=>{
-  const r=D.lap.filter(l=>l.skp==id&&l.status=='Disetujui').reduce((a,l)=>a+Number(l.jml),0);
+ yrUI();
+ $('skpList').innerHTML=!cur().length?'<div class="empty">SKP tahun ini belum dimasukkan.</div>':cur().map(([id,t,tg,u,b])=>{
+  const r=(b||0)+D.lap.filter(l=>l.skp==id&&l.status=='Disetujui'&&(l.tgl||'').slice(0,4)==Y).reduce((a,l)=>a+Number(l.jml),0);
   const p=Math.min(100,Math.round(r/tg*100));
   return `<div class="row"><span class="no">${id}</span><div><div>${esc(t)}</div><div class="meta">${r} dari ${tg} ${u} (${p}%)</div><div class="bar"><i class="${p>=100?'full':''}" style="width:${p}%"></i></div></div></div>`}).join('');
- $('lSkp').innerHTML=SKP.map(s=>`<option value="${s[0]}">${esc(s[0]+'. '+s[1])}</option>`).join('');
+ fillSkp();
  const L=D.lap.filter(l=>isA()||l.status=='Disetujui').sort((a,b)=>b.tgl.localeCompare(a.tgl));
  $('lapList').innerHTML=L.length?L.map(l=>`<article class="card"><span class="tag ${l.status}">${l.status}</span> <span class="meta">${esc(l.tgl)} · ${esc(l.lok)}</span>
-  <h3>${esc(l.judul)}</h3><p class="meta">Butir SKP ${esc(nm(l.skp))} · realisasi ${esc(l.jml)}</p><p>${esc(l.isi).replace(/\n/g,'<br>')}</p>
+  <h3>${esc(l.judul)}</h3><p class="meta">Butir SKP ${esc(nm(l.skp,(l.tgl||'').slice(0,4)))} · realisasi ${esc(l.jml)}</p><p>${esc(l.isi).replace(/\n/g,'<br>')}</p>
   ${l.bukti?`<a href="${esc(l.bukti)}" rel="noopener">Bukti dukung</a>`:''}
   ${l.status=='Disetujui'?`<p class="meta">Disetujui ${esc(l.tglSetuju)} oleh ${esc(l.pejabat)}</p>`:''}
   <div class="onlyadmin">${l.status=='Draf'?`<button onclick="st('${l.id}','Diajukan')">Ajukan ke pimpinan</button>`:''}
@@ -159,8 +182,8 @@ const C={keg:['Kegiatan di Lapangan','Jejak kerja yang sudah dilakukan.',[['judu
 ren:['Rencana Kerja','Program yang sedang berjalan dan akan datang.',[['periode','Periode'],['status','Status','sel:Sedang berjalan,Rencana,Visi'],['judul','Judul rencana'],['desk','Deskripsi','ta']]],
 edu:['Modul Edukasi','Materi untuk dibagikan. Tempel link PDF dari Google Drive.',[['judul','Judul modul'],['kat','Kategori','sel:Pelayanan KB,Stunting & Gizi,Kesehatan Reproduksi,GenRE,Kampung KB,MEKOP,Manajemen Data'],['desk','Deskripsi','ta'],['link','Link file PDF','url']]]};
 function genSec(){for(const k in C){D[k]=D[k]||[];const [t,s,F]=C[k];
- const inp=([n,l,ty])=>`<label>${l}</label>`+(ty=='ta'?`<textarea id="${k}_${n}" rows="3" required></textarea>`:ty=='skp'?`<select id="${k}_${n}">${SKP.map(x=>`<option value="${x[0]}">${esc(x[0]+'. '+x[1])}</option>`).join('')}</select>`:ty&&ty.startsWith('sel:')?`<select id="${k}_${n}">${ty.slice(4).split(',').map(o=>`<option>${esc(o)}</option>`).join('')}</select>`:`<input id="${k}_${n}" type="${ty||'text'}" ${n=='link'?'':'required'}>`);
- const item=x=>`<article class="card"><h3>${esc(x.judul)}</h3><p class="meta">${F.filter(f=>!['judul','desk','link'].includes(f[0])).map(f=>esc(f[0]=='skp'?'SKP '+nm(x.skp):x[f[0]])).join(' · ')}</p><p>${esc(x.desk).replace(/\n/g,'<br>')}</p>${/^https?:/.test(x.link||'')?`<a href="${esc(x.link)}" rel="noopener">Buka file</a>`:''}<div class="onlyadmin"><button class="red" onclick="delG('${k}','${x.id}')">Hapus</button></div></article>`;
+ const inp=([n,l,ty])=>`<label>${l}</label>`+(ty=='ta'?`<textarea id="${k}_${n}" rows="3" required></textarea>`:ty=='skp'?`<select id="${k}_${n}">${cur().map(x=>`<option value="${x[0]}">${esc(x[0]+'. '+x[1])}</option>`).join('')}</select>`:ty&&ty.startsWith('sel:')?`<select id="${k}_${n}">${ty.slice(4).split(',').map(o=>`<option>${esc(o)}</option>`).join('')}</select>`:`<input id="${k}_${n}" type="${ty||'text'}" ${n=='link'?'':'required'}>`);
+ const item=x=>`<article class="card"><h3>${esc(x.judul)}</h3><p class="meta">${F.filter(f=>!['judul','desk','link'].includes(f[0])).map(f=>esc(f[0]=='skp'?'SKP '+nm(x.skp,x.tahun):x[f[0]])).join(' · ')}</p><p>${esc(x.desk).replace(/\n/g,'<br>')}</p>${/^https?:/.test(x.link||'')?`<a href="${esc(x.link)}" rel="noopener">Buka file</a>`:''}<div class="onlyadmin"><button class="red" onclick="delG('${k}','${x.id}')">Hapus</button></div></article>`;
  $(k).innerHTML=`<h2>${t}</h2><p class="sub">${s}</p><form class="admin" onsubmit="addG('${k}',event)">${F.map(inp).join('')}<button>Tambah</button></form>`+(D[k].length?D[k].map(item).join(''):'<div class="empty">Belum ada data.</div>')}}
 function addG(k,e){e.preventDefault();const o={t:Date.now()};C[k][2].forEach(([n])=>o[n]=$(k+'_'+n).value);db.collection(k).add(o).catch(werr);e.target.reset()}
 function delG(k,id){if(confirm('Hapus data ini?'))db.collection(k).doc(id).delete().catch(werr)}
@@ -192,4 +215,9 @@ function listen(){unsubs.forEach(f=>f());unsubs=[];
   unsubs.push(q.onSnapshot(sn=>{D[k]=sn.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.t||0)-(a.t||0));render()},e=>console.error(k,e.message)))})}
 au.onAuthStateChanged(u=>{document.body.classList.toggle('isadmin',!!u);$('loginBtn').textContent=u?'Keluar':'Admin';listen()});
 render();
+const PG=['skp','laporan','keg','ren','edu','galeri','tentang','kontak'];
+function go(){let h=(location.hash||'#skp').slice(1);if(!PG.includes(h))h='skp';
+ document.querySelectorAll('section').forEach(e=>{e.hidden=e.classList.contains('hero')?h!='skp':e.id!=h});
+ document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+h));scrollTo(0,0)}
+addEventListener('hashchange',go);go();
 </script></body></html>
