@@ -86,6 +86,15 @@ nav a.on{background:var(--ink);color:#fff}
 .wv2 b{display:block;font-size:1.25rem}.wv2 span{font-size:.8rem;color:#51697a}
 .wr{display:grid;grid-template-columns:1fr 100px 42px;gap:6px;align-items:start}
 .wr button{padding:9px 0;margin:4px 0 10px}
+[hidden]{display:none!important}
+.lf{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin:10px 0}
+.lf img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin:6px 0 12px;max-height:230px;overflow:auto}
+.pick label{position:relative;display:block;margin:0;cursor:pointer}
+.pick input{position:absolute;opacity:0;width:auto;margin:0}
+.pick img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:4px solid transparent;display:block}
+.pick input:checked+img{border-color:var(--gold)}
+.pick input:focus-visible+img{outline:3px solid var(--sea)}
 </style></head><body>
 <nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div class="bar-admin"><b>Mode admin</b><button class="alt" onclick="exp()">Ekspor cadangan</button></div>
@@ -102,7 +111,7 @@ nav a.on{background:var(--ink);color:#fff}
 <div class="skp" id="skpList"></div></section>
 
 <section id="laporan"><h2>Berita &amp; Laporan Lapangan</h2>
-<p class="sub">Hanya laporan berstatus Disetujui yang tampil untuk umum.</p>
+<p class="sub">Laporan yang diterbitkan tampil untuk umum.</p>
 <form class="admin" id="lapForm">
 <label>Butir SKP *</label><select id="lSkp" required></select>
 <label>Judul laporan *</label><input id="lJudul" required>
@@ -110,7 +119,8 @@ nav a.on{background:var(--ink);color:#fff}
 <label>Lokasi *</label><input id="lLok" required>
 <label>Isi laporan *</label><textarea id="lIsi" rows="4" required></textarea>
 <label>Link bukti dukung (opsional)</label><input id="lBukti" type="url" placeholder="https://">
-<button>Simpan sebagai draf</button></form>
+<label>Dokumentasi dari Galeri (pilih satu atau lebih)</label><div class="pick" id="lPick"></div>
+<button>Terbitkan</button> <button type="button" class="alt" onclick="if($('lapForm').reportValidity())saveLap(false)">Simpan tersembunyi</button></form>
 <div id="lapList"></div></section>
 
 <section id="keg"></section><section id="ren"></section><section id="edu"></section>
@@ -160,6 +170,7 @@ const SKP25=[['1a','Pertemuan penyuluhan BKB',12,'kali',12],['1b','Pertemuan pen
 const SK={2026:SKP,2025:SKP25};
 let Y=String(new Date().getFullYear());if(!SK[Y])Y=Object.keys(SK).sort().pop();
 const cur=()=>SK[Y]||[];
+const LF=new Set();
 let D={lap:[],foto:[],keg:[],ren:[],edu:[],wilayah:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -171,7 +182,7 @@ function renderW(){const W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.
  const tot={};W.forEach(w=>w.vars.forEach(x=>tot[x.n]=(tot[x.n]||0)+Number(x.v)));
  $('hStats').innerHTML=Object.entries(tot).map(([n,v])=>`<div><b>${nf(v)}</b>${esc(n)}</div>`).join('');
  const U=W.filter(w=>w.jenis=='Utama').map(w=>w.nama),P=W.filter(w=>w.jenis!='Utama').map(w=>w.nama);
- $('hText').textContent='Mendampingi keluarga di Kecamatan Binamu, Jeneponto.'+(U.length?' Wilayah binaan utama: '+U.join(', ')+'.':'')+(P.length?' Pendukung: '+P.join(', ')+'.':'')+' Setiap laporan di sini terhubung ke capaian SKP dan baru tampil setelah disetujui pimpinan.';
+ $('hText').textContent='Mendampingi keluarga di Kecamatan Binamu, Jeneponto.'+(U.length?' Wilayah binaan utama: '+U.join(', ')+'.':'')+(P.length?' Pendukung: '+P.join(', ')+'.':'')+' Setiap laporan di sini terhubung ke capaian SKP.';
  $('wil').innerHTML=`<h2>Wilayah Binaan</h2><p class="sub">Jumlah penduduk diperbarui berkala oleh admin.</p><div class="admin"><button onclick="wOpen()">+ Tambah wilayah</button> ${W.length?'':'<button class="alt" onclick="seedW()">Isi data awal</button>'}</div>`+(W.length?`<div class="wg">${W.map(w=>`<article class="card wc ${w.jenis=='Utama'?'ut':''}"><span class="tag">${w.jenis=='Utama'?'★ Utama':'Pendukung'}</span><h3>${esc(w.nama)}</h3><div class="wv2">${w.vars.map(x=>`<div><b>${nf(x.v)}</b><span>${esc(x.n)}</span></div>`).join('')}</div><p class="meta">Diperbarui ${esc(w.upd||'-')}</p><div class="onlyadmin"><button onclick="wOpen('${w.id}')">Edit</button> <button class="red" onclick="delW('${w.id}')">Hapus</button></div></article>`).join('')}</div>`:'<div class="empty">Belum ada data wilayah.</div>')}
 let WE='';
 const wRow=(l='',v='')=>`<div class="wr"><input list="vs" placeholder="Nama variabel" value="${esc(l)}" class="wl"><input type="number" min="0" placeholder="Jumlah" value="${esc(v)}" class="wv"><button type="button" class="red" aria-label="Hapus baris" onclick="this.parentNode.remove()">×</button></div>`;
@@ -187,7 +198,7 @@ function seedW(){const v=(a,b,c,d)=>[{n:'Lingkungan',v:a},{n:'Keluarga (KK)',v:b
  [['Empoang Selatan','Utama',v(8,1535,874,5076)],['Empoang','Pendukung',v(0,0,0,0)],['Sidenre','Pendukung',v(0,0,0,0)],['Biringkassi','Pendukung',v(0,0,0,0)]].forEach(([nama,jenis,vars],i)=>db.collection('wilayah').add({nama,jenis,vars,upd:u,t:Date.now()-i}).catch(werr))}
 function yrUI(){const ys=[...new Set([...Object.keys(SK),...D.lap.map(l=>(l.tgl||'').slice(0,4)).filter(Boolean),Y])].sort().reverse();
  $('yr').innerHTML=ys.map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('');
- $('skpSub').textContent=Y=='2025'?'Realisasi sesuai Dokumen Evaluasi Kinerja Pegawai 2025 (predikat Baik), ditambah laporan yang disetujui.':'Realisasi dihitung dari laporan yang sudah disetujui pimpinan pada tahun ini.'}
+ $('skpSub').textContent=Y=='2025'?'Realisasi sesuai Dokumen Evaluasi Kinerja Pegawai 2025 (predikat Baik), ditambah laporan yang diterbitkan.':'Realisasi dihitung dari laporan yang diterbitkan pada tahun ini.'}
 function fillSkp(){const y=($('lTgl').value||'').slice(0,4)||Y,v=$('lSkp').value;
  $('lSkp').innerHTML=(SK[y]||[]).map(s=>`<option value="${s[0]}">${esc(s[0]+'. '+s[1])}</option>`).join('');if(v)$('lSkp').value=v}
 function render(){
@@ -198,16 +209,15 @@ function render(){
   return `<div class="row"><span class="no">${id}</span><div><div>${esc(t)}</div><div class="meta">${r} dari ${tg} ${u} (${p}%)</div><div class="bar"><i class="${p>=100?'full':''}" style="width:${p}%"></i></div></div></div>`}).join('');
  fillSkp();
  const L=D.lap.filter(l=>isA()||l.status=='Disetujui').sort((a,b)=>b.tgl.localeCompare(a.tgl));
- $('lapList').innerHTML=L.length?L.map(l=>`<article class="card"><span class="tag ${l.status}">${l.status}</span> <span class="meta">${esc(l.tgl)} · ${esc(l.lok)}</span>
+ $('lapList').innerHTML=L.length?L.map(l=>{const pub=l.status=='Disetujui';return `<article class="card"><span class="tag ${pub?'Disetujui':''}">${pub?'Terbit':'Disembunyikan'}</span> <span class="meta">${esc(l.tgl)} · ${esc(l.lok)}</span>
   <h3>${esc(l.judul)}</h3><p class="meta">Butir SKP ${esc(nm(l.skp,(l.tgl||'').slice(0,4)))} · realisasi ${esc(l.jml)}</p><p>${esc(l.isi).replace(/\n/g,'<br>')}</p>
+  ${(l.fotos||[]).length?`<div class="lf">${l.fotos.map(id=>{const f=D.foto.find(x=>x.id==id);return f?`<img src="${f.src}" alt="${esc(f.cap)}" loading="lazy">`:''}).join('')}</div>`:''}
   ${l.bukti?`<a href="${esc(l.bukti)}" rel="noopener">Bukti dukung</a>`:''}
-  ${l.status=='Disetujui'?`<p class="meta">Disetujui ${esc(l.tglSetuju)} oleh ${esc(l.pejabat)}</p>`:''}
-  <div class="onlyadmin">${l.status=='Draf'?`<button onclick="st('${l.id}','Diajukan')">Ajukan ke pimpinan</button>`:''}
-  ${l.status=='Diajukan'?`<button onclick="setuju('${l.id}')">Tandai disetujui</button>`:''}
-  ${l.status!='Draf'?`<button class="alt" onclick="st('${l.id}','Draf')">Kembalikan ke draf</button>`:''}
-  <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></div></article>`).join(''):'<div class="empty">Belum ada laporan yang disetujui.</div>';
+  ${l.pejabat?`<p class="meta">Disetujui ${esc(l.tglSetuju)} oleh ${esc(l.pejabat)}</p>`:''}
+  <div class="onlyadmin"><button class="alt" onclick="st('${l.id}','${pub?'Draf':'Disetujui'}')">${pub?'Sembunyikan':'Terbitkan'}</button> <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></div></article>`}).join(''):'<div class="empty">Belum ada laporan yang terbit.</div>';
  const pf=D.foto.find(f=>f.id=='profil');if(pf)$('ph').src=pf.src;const G=D.foto.filter(f=>f.id!='profil');
  $('galList').innerHTML=G.length?G.map(f=>`<figure><img src="${f.src}" alt="${esc(f.cap)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption>${isA()?`<button class="del" onclick="hapusFoto('${f.id}')">Hapus</button>`:''}</figure>`).join(''):'<div class="empty">Belum ada foto.</div>';
+ $('lPick').innerHTML=G.length?G.map(f=>`<label><input type="checkbox" ${LF.has(f.id)?'checked':''} onchange="this.checked?LF.add('${f.id}'):LF.delete('${f.id}')"><img src="${f.src}" alt="${esc(f.cap)}"></label>`).join(''):'<span class="meta">Belum ada foto di Galeri.</span>';
  genSec();
 }
 const C={keg:['Kegiatan di Lapangan','Jejak kerja yang sudah dilakukan.',[['judul','Judul kegiatan'],['tahun','Tahun','number'],['skp','Butir SKP','skp'],['desk','Deskripsi','ta']]],
@@ -222,9 +232,8 @@ function delG(k,id){if(confirm('Hapus data ini?'))db.collection(k).doc(id).delet
 $('loginBtn').onclick=()=>{if(au.currentUser){au.signOut();return}$('dlg').showModal()};
 $('lgForm').onsubmit=e=>{e.preventDefault();$('lgErr').textContent='';au.signInWithEmailAndPassword($('lgEm').value.trim(),$('lgPw').value).then(()=>{$('dlg').close();$('lgPw').value=''}).catch(()=>$('lgErr').textContent='Email atau sandi salah.')};
 async function setProfil(i){if(!i.files[0])return;db.collection('foto').doc('profil').set({t:0,cap:'Foto profil',src:await kompres(i.files[0])}).catch(werr)}
-$('lapForm').onsubmit=e=>{e.preventDefault();
- db.collection('lap').add({t:Date.now(),skp:$('lSkp').value,judul:$('lJudul').value,tgl:$('lTgl').value,lok:$('lLok').value,jml:$('lJml').value,isi:$('lIsi').value,bukti:$('lBukti').value,status:'Draf'}).catch(werr);
- e.target.reset()};
+function saveLap(pub){db.collection('lap').add({t:Date.now(),skp:$('lSkp').value,judul:$('lJudul').value,tgl:$('lTgl').value,lok:$('lLok').value,jml:$('lJml').value,isi:$('lIsi').value,bukti:$('lBukti').value,fotos:[...LF],status:pub?'Disetujui':'Draf'}).catch(werr);$('lapForm').reset();LF.clear();render()}
+$('lapForm').onsubmit=e=>{e.preventDefault();saveLap(true)};
 function st(id,s){db.collection('lap').doc(id).update({status:s}).catch(werr)}
 function setuju(id){const p=prompt('Nama pejabat penilai yang menyetujui',PEJABAT);if(!p)return;
  const t=prompt('Tanggal persetujuan (YYYY-MM-DD)',new Date().toISOString().slice(0,10));if(!t)return;
