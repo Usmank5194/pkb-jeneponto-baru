@@ -137,6 +137,9 @@ tr.tot td{font-weight:800;background:var(--mist)}
 .ok{color:var(--ok)}.mid{color:#a86d00}.low{color:var(--bad)}
 .lg{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;margin-top:6px}
 .lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px}
+[hidden]{display:none!important}
+.rk th:nth-child(2),.rk td:nth-child(2){text-align:right}
+.rk th:first-child,.rk td:first-child{text-align:left}
 </style></head><body>
 <nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#capaian">Capaian</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div id="ld" class="ld" role="alert" hidden></div>
@@ -161,6 +164,7 @@ tr.tot td{font-weight:800;background:var(--mist)}
 <label>Butir SKP *</label><select id="lSkp" required></select>
 <label>Judul laporan *</label><input id="lJudul" required>
 <div class="two"><div><label>Tanggal *</label><input id="lTgl" type="date" required onchange="fillSkp()"></div><div><label>Jumlah realisasi *</label><input id="lJml" type="number" min="1" value="1" required></div></div>
+<label>Wilayah binaan</label><select id="lWil"></select>
 <label>Lokasi *</label><input id="lLok" required>
 <label>Isi laporan *</label><textarea id="lIsi" rows="4" required></textarea>
 <label>Link bukti dukung (opsional)</label><input id="lBukti" type="url" placeholder="https://">
@@ -267,23 +271,36 @@ function chart(T,C,P){const W=360,H=220,pl=30,pr=34,pb=22,pt=12,pw=W-pl-pr,ph=H-
  const pts=P.map((p,m)=>p==null?null:[pl+m*gw+gw/2,yp(p)]).filter(Boolean);
  if(pts.length)o+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#e0a21b" stroke-width="2"/>`+pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#e0a21b"/>`).join('');
  return o+'</svg><div class="lg"><span><i style="background:#9db6c4"></i>Target</span><span><i style="background:#1b6a85"></i>Capaian</span><span><i style="background:#e0a21b"></i>Persentase</span></div>'}
-function renderCap(){const L=cur();if(!L.find(x=>x[0]==CB))CB=L[0]?L[0][0]:'';const it=L.find(x=>x[0]==CB),A=isA();
- let h=`<h2>Capaian Bulanan</h2><p class="sub">Target dari pimpinan dan realisasi per bulan, lengkap dengan grafik.</p><div class="two"><div><label>Tahun</label><select onchange="Y=this.value;render()">${Object.keys(SK).sort().reverse().map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('')}</select></div><div><label>Butir SKP</label><select onchange="CB=this.value;render()">${L.map(x=>`<option value="${x[0]}"${x[0]==CB?' selected':''}>${esc(x[0]+'. '+x[1])}</option>`).join('')}</select></div></div>`;
+let CW='all';
+const wn=id=>{const w=D.wilayah.find(x=>x.id==id);return w?w.nama:''};
+const capId=()=>Y+'_'+CB+(D.wilayah.length&&CW!='all'?'_'+CW:'');
+function renderCap(){const L=cur(),A=isA(),W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.jenis=='Utama'?0:1)),hw=W.length>0;
+ if(!L.find(x=>x[0]==CB))CB=L[0]?L[0][0]:'';if(CW!='all'&&!W.find(w=>w.id==CW))CW='all';
+ const it=L.find(x=>x[0]==CB);
+ let h=`<h2>Capaian Bulanan</h2><p class="sub">Target dari pimpinan dan realisasi per bulan, lengkap dengan grafik.</p><div class="two"><div><label>Tahun</label><select onchange="Y=this.value;render()">${Object.keys(SK).sort().reverse().map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('')}</select></div><div><label>Butir SKP</label><select onchange="CB=this.value;render()">${L.map(x=>`<option value="${x[0]}"${x[0]==CB?' selected':''}>${esc(x[0]+'. '+x[1])}</option>`).join('')}</select></div></div>`
+ +(hw?`<label>Wilayah binaan</label><select onchange="CW=this.value;render()"><option value="all"${CW=='all'?' selected':''}>Semua wilayah (total)</option>${W.map(w=>`<option value="${w.id}"${w.id==CW?' selected':''}>${w.jenis=='Utama'?'★ ':''}${esc(w.nama)}</option>`).join('')}</select>`:'');
  if(!it){$('capaian').innerHTML=h+'<div class="empty">SKP tahun ini belum dimasukkan.</div>';return}
- const doc=D.capaian.find(x=>x.id==Y+'_'+CB)||{},src=doc.src||'laporan',tg=it[2],T=[],C=[],P=[];
- for(let m=0;m<12;m++){const t=doc.target&&doc.target[m]!=null?Number(doc.target[m]):tg/12,mm=Y+'-'+String(m+1).padStart(2,'0');
-  const c=src=='laporan'?D.lap.filter(l=>l.skp==CB&&l.status=='Disetujui'&&(l.tgl||'').slice(0,7)==mm).reduce((a,l)=>a+Number(l.jml),0):Number(doc.capaian&&doc.capaian[m]||0);
-  T.push(t);C.push(c);P.push(t>0?Math.round(c/t*100):null)}
- const ts=T.reduce((a,b)=>a+b,0),cs=C.reduce((a,b)=>a+b,0),tp=ts>0?Math.round(cs/ts*100):null,pc=p=>p==null?'-':`<b class="${p>=100?'ok':p>=50?'mid':'low'}">${p}%</b>`;
- if(A)h+=`<div class="admin"><label>Sumber capaian</label><select onchange="srcCap(this.value)"><option value="laporan"${src=='laporan'?' selected':''}>Otomatis dari laporan yang diterbitkan</option><option value="manual"${src=='manual'?' selected':''}>Isi manual</option></select><button onclick="saveCap()">Simpan tabel</button></div>`;
- h+=`<div class="card">${chart(T,C,P)}</div><div class="tw"><table><thead><tr><th>No</th><th>Bulan</th><th>Target</th><th>Capaian</th><th>%</th></tr></thead><tbody>`+BLN.map((b,m)=>`<tr><td>${m+1}</td><td>${b}</td><td>${A?`<input class="ct" type="number" min="0" step="any" value="${doc.target&&doc.target[m]!=null?doc.target[m]:''}" placeholder="${fx(tg/12)}">`:fx(T[m])}</td><td>${A&&src=='manual'?`<input class="cc" type="number" min="0" step="any" value="${doc.capaian&&doc.capaian[m]!=null?doc.capaian[m]:''}">`:fx(C[m])}</td><td>${pc(P[m])}</td></tr>`).join('')+`<tr class="tot"><td></td><td>Total</td><td>${fx(ts)}</td><td>${fx(cs)}</td><td>${pc(tp)}</td></tr></tbody></table></div><p class="meta">Target tahunan SKP: ${tg} ${esc(it[3])}. Kolom target yang kosong dibagi rata per bulan.</p>`;
- $('capaian').innerHTML=h}
-function saveCap(){const g=c=>[...document.querySelectorAll('#capaian .'+c)].map(i=>i.value===''?null:Number(i.value)),o={y:Y,skp:CB,target:g('ct')},cc=g('cc');if(cc.length)o.capaian=cc;
- db.collection('capaian').doc(Y+'_'+CB).set(o,{merge:true}).then(()=>alert('Tabel tersimpan.')).catch(werr)}
-function srcCap(v){db.collection('capaian').doc(Y+'_'+CB).set({y:Y,skp:CB,src:v},{merge:true}).catch(werr)}
+ const tg=it[2],agg=hw&&CW=='all',wid=hw&&CW!='all'?CW:'';
+ const calc=w=>{const doc=D.capaian.find(x=>x.id==Y+'_'+CB+(w?'_'+w:''))||{},src=doc.src||'laporan',n=w?W.length||1:1,T=[],C=[];
+  for(let m=0;m<12;m++){const mm=Y+'-'+String(m+1).padStart(2,'0');T.push(doc.target&&doc.target[m]!=null?Number(doc.target[m]):tg/12/n);
+   C.push(src=='laporan'?D.lap.filter(l=>l.skp==CB&&l.status=='Disetujui'&&(!w||l.wil==w)&&(l.tgl||'').slice(0,7)==mm).reduce((a,l)=>a+Number(l.jml),0):Number(doc.capaian&&doc.capaian[m]||0))}
+  return{doc,src,T,C}};
+ const sm=(a,m)=>a.reduce((x,r)=>x+r[m],0),add=(a)=>a.reduce((x,y)=>x+y,0),R2=agg?W.map(w=>calc(w.id)):[calc(wid)];
+ const T=[...Array(12)].map((_,m)=>R2.reduce((a,r)=>a+r.T[m],0)),C=[...Array(12)].map((_,m)=>R2.reduce((a,r)=>a+r.C[m],0)),P=T.map((t,m)=>t>0?Math.round(C[m]/t*100):null);
+ const {doc,src}=R2[0],ts=add(T),cs=add(C),tp=ts>0?Math.round(cs/ts*100):null,pc=p=>p==null?'-':`<b class="${p>=100?'ok':p>=50?'mid':'low'}">${p}%</b>`,ed=A&&!agg;
+ if(A&&agg)h+='<p class="meta">Ini total dari semua wilayah. Pilih satu wilayah untuk mengisi target dan capaian.</p>';
+ if(ed)h+=`<div class="admin"><label>Sumber capaian</label><select onchange="srcCap(this.value)"><option value="laporan"${src=='laporan'?' selected':''}>Otomatis dari laporan yang diterbitkan</option><option value="manual"${src=='manual'?' selected':''}>Isi manual</option></select><button onclick="saveCap()">Simpan tabel</button></div>`;
+ h+=`<div class="card"><p class="meta" style="margin:0 0 6px">${agg?'Semua wilayah':esc(wn(wid)||'Semua wilayah')}</p>${chart(T,C,P)}</div><div class="tw"><table><thead><tr><th>No</th><th>Bulan</th><th>Target</th><th>Capaian</th><th>%</th></tr></thead><tbody>`+BLN.map((b,m)=>`<tr><td>${m+1}</td><td>${b}</td><td>${ed?`<input class="ct" type="number" min="0" step="any" value="${doc.target&&doc.target[m]!=null?doc.target[m]:''}" placeholder="${fx(R2[0].T[m])}">`:fx(T[m])}</td><td>${ed&&src=='manual'?`<input class="cc" type="number" min="0" step="any" value="${doc.capaian&&doc.capaian[m]!=null?doc.capaian[m]:''}">`:fx(C[m])}</td><td>${pc(P[m])}</td></tr>`).join('')+`<tr class="tot"><td></td><td>Total</td><td>${fx(ts)}</td><td>${fx(cs)}</td><td>${pc(tp)}</td></tr></tbody></table></div>`;
+ if(agg)h+=`<h3 style="margin:18px 0 8px">Rekap per wilayah</h3><div class="tw"><table class="rk"><thead><tr><th>Wilayah</th><th>Target</th><th>Capaian</th><th>%</th></tr></thead><tbody>${W.map((w,i)=>{const t=add(R2[i].T),c=add(R2[i].C);return`<tr><td>${w.jenis=='Utama'?'★ ':''}${esc(w.nama)}</td><td>${fx(t)}</td><td>${fx(c)}</td><td>${pc(t>0?Math.round(c/t*100):null)}</td></tr>`}).join('')}</tbody></table></div>`;
+ $('capaian').innerHTML=h+`<p class="meta">Target tahunan SKP: ${tg} ${esc(it[3])}. Target yang kosong dibagi rata per bulan dan per wilayah.</p>`}
+function saveCap(){const g=c=>[...document.querySelectorAll('#capaian .'+c)].map(i=>i.value===''?null:Number(i.value)),o={y:Y,skp:CB,w:CW=='all'?null:CW,target:g('ct')},cc=g('cc');if(cc.length)o.capaian=cc;
+ db.collection('capaian').doc(capId()).set(o,{merge:true}).then(()=>alert('Tabel tersimpan.')).catch(werr)}
+function srcCap(v){db.collection('capaian').doc(capId()).set({y:Y,skp:CB,w:CW=='all'?null:CW,src:v},{merge:true}).catch(werr)}
 function yrUI(){const ys=[...new Set([...Object.keys(SK),...D.lap.map(l=>(l.tgl||'').slice(0,4)).filter(Boolean),Y])].sort().reverse();
  $('yr').innerHTML=ys.map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('');
  $('skpSub').textContent=Y=='2025'?'Realisasi sesuai Dokumen Evaluasi Kinerja Pegawai 2025 (predikat Baik), ditambah laporan yang diterbitkan.':'Realisasi dihitung dari laporan yang diterbitkan pada tahun ini.'}
+function fillWil(){const v=$('lWil').value,W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.jenis=='Utama'?0:1));
+ $('lWil').innerHTML=W.length?W.map(w=>`<option value="${w.id}">${w.jenis=='Utama'?'★ ':''}${esc(w.nama)}</option>`).join(''):'<option value="">-</option>';if(v)$('lWil').value=v}
 function fillSkp(){const y=($('lTgl').value||'').slice(0,4)||Y,v=$('lSkp').value;
  $('lSkp').innerHTML=(SK[y]||[]).map(s=>`<option value="${s[0]}">${esc(s[0]+'. '+s[1])}</option>`).join('');if(v)$('lSkp').value=v}
 function render(){
@@ -292,9 +309,9 @@ function render(){
   const r=(b||0)+D.lap.filter(l=>l.skp==id&&l.status=='Disetujui'&&(l.tgl||'').slice(0,4)==Y).reduce((a,l)=>a+Number(l.jml),0);
   const p=Math.min(100,Math.round(r/tg*100));
   return `<div class="row"><span class="no">${id}</span><div><div>${esc(t)}</div><div class="meta">${r} dari ${tg} ${u} (${p}%)</div><div class="bar"><i class="${p>=100?'full':''}" style="width:${p}%"></i></div></div></div>`}).join('');
- fillSkp();
+ fillSkp();fillWil();
  const L=D.lap.filter(l=>isA()||l.status=='Disetujui').sort((a,b)=>b.tgl.localeCompare(a.tgl));
- $('lapList').innerHTML=L.length?L.map(l=>{const pub=l.status=='Disetujui';return `<article class="card"><span class="tag ${pub?'Disetujui':''}">${pub?'Terbit':'Disembunyikan'}</span> <span class="meta">${esc(l.tgl)} · ${esc(l.lok)}</span>
+ $('lapList').innerHTML=L.length?L.map(l=>{const pub=l.status=='Disetujui';return `<article class="card"><span class="tag ${pub?'Disetujui':''}">${pub?'Terbit':'Disembunyikan'}</span> <span class="meta">${esc(l.tgl)} · ${esc(l.lok)}${l.wil&&wn(l.wil)?' · '+esc(wn(l.wil)):''}</span>
   <h3>${esc(l.judul)}</h3><p class="meta">Butir SKP ${esc(nm(l.skp,(l.tgl||'').slice(0,4)))} · realisasi ${esc(l.jml)}</p><p>${esc(l.isi).replace(/\n/g,'<br>')}</p>
   ${(l.fotos||[]).length?`<div class="lf">${l.fotos.map(id=>{const f=D.foto.find(x=>x.id==id);return f?`<img src="${f.src}" alt="${esc(f.cap)}" loading="lazy">`:''}).join('')}</div>`:''}
   ${l.bukti?`<a href="${esc(l.bukti)}" rel="noopener">Bukti dukung</a>`:''}
@@ -317,7 +334,7 @@ function delG(k,id){if(confirm('Hapus data ini?'))db.collection(k).doc(id).delet
 $('loginBtn').onclick=()=>{if(au.currentUser){au.signOut();return}$('dlg').showModal()};
 $('lgForm').onsubmit=e=>{e.preventDefault();$('lgErr').textContent='';au.signInWithEmailAndPassword($('lgEm').value.trim(),$('lgPw').value).then(()=>{$('dlg').close();$('lgPw').value=''}).catch(()=>$('lgErr').textContent='Email atau sandi salah.')};
 async function setProfil(i){if(!i.files[0])return;db.collection('foto').doc('profil').set({t:0,cap:'Foto profil',src:await kompres(i.files[0])}).catch(werr)}
-function saveLap(pub){db.collection('lap').add({t:Date.now(),skp:$('lSkp').value,judul:$('lJudul').value,tgl:$('lTgl').value,lok:$('lLok').value,jml:$('lJml').value,isi:$('lIsi').value,bukti:$('lBukti').value,fotos:[...LF],status:pub?'Disetujui':'Draf'}).catch(werr);$('lapForm').reset();LF.clear();render()}
+function saveLap(pub){db.collection('lap').add({t:Date.now(),skp:$('lSkp').value,judul:$('lJudul').value,tgl:$('lTgl').value,lok:$('lLok').value,jml:$('lJml').value,isi:$('lIsi').value,bukti:$('lBukti').value,wil:$('lWil').value,fotos:[...LF],status:pub?'Disetujui':'Draf'}).catch(werr);$('lapForm').reset();LF.clear();render()}
 $('lapForm').onsubmit=e=>{e.preventDefault();saveLap(true)};
 function st(id,s){db.collection('lap').doc(id).update({status:s}).catch(werr)}
 function setuju(id){const p=prompt('Nama pejabat penilai yang menyetujui',PEJABAT);if(!p)return;
