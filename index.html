@@ -124,8 +124,21 @@ nav a.on{background:var(--ink);color:#fff}
 nav{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 nav a{color:var(--ink)!important}
 nav a.on{background:var(--ink)!important;color:#fff!important}
+[hidden]{display:none!important}
+a.btn{display:inline-block;text-decoration:none}
+.btn.alt{background:var(--mist);color:var(--ink)}
+.tw{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 18px rgba(16,41,58,.08)}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:nth-child(2),td:nth-child(2){text-align:left}
+th{background:var(--mist);font-size:.85rem}
+td input{width:84px;margin:0;padding:6px;text-align:right}
+tr.tot td{font-weight:800;background:var(--mist)}
+.ok{color:var(--ok)}.mid{color:#a86d00}.low{color:var(--bad)}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;margin-top:6px}
+.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px}
 </style></head><body>
-<nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#kontak">Kontak</a><button id="loginBtn" class="alt">Admin</button></nav>
+<nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#capaian">Capaian</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div id="ld" class="ld" role="alert" hidden></div>
 <div class="bar-admin"><b>Mode admin</b><button class="alt" onclick="exp()">Ekspor cadangan</button></div>
 
@@ -163,11 +176,8 @@ nav a.on{background:var(--ink)!important;color:#fff!important}
 <label>Keterangan *</label><input id="fCap"><button onclick="addFoto()">Tambah foto</button></div>
 <div class="grid" id="galList"></div></section>
 
-<section id="tentang"><h2>Tentang</h2>
-<p>Penyuluh KB DPPKB Kabupaten Jeneponto dengan pengabdian 23 tahun. Lulusan S1 Ilmu Komunikasi Universitas Terbuka, bersertifikat Penyuluh KB dari BKKBN Sulawesi Selatan. Fokus: konseling KBKR, pendampingan 1000 HPK, intervensi stunting, Kampung KB, dan data yang valid sebagai dasar setiap langkah.</p></section>
-
-<section id="kontak"><h2>Kontak</h2>
-<p><a href="mailto:usmanksiga@gmail.com">usmanksiga@gmail.com</a><br><a href="https://wa.me/6281333378883">WhatsApp 081333378883</a><br><a href="https://instagram.com/usmank5194">@usmank5194</a></p></section>
+<section id="tentang"></section>
+<section id="capaian"></section>
 <dialog id="lb" onclick="if(event.target===this)this.close()"><button class="lbx" aria-label="Tutup" onclick="$('lb').close()">×</button><button class="lbn" id="lbP" aria-label="Sebelumnya" onclick="lbGo(-1)">‹</button><img id="lbImg" alt=""><button class="lbn r" id="lbN" aria-label="Berikutnya" onclick="lbGo(1)">›</button><p id="lbCap"></p></dialog>
 <dialog id="dlg"><form id="lgForm"><h3>Masuk Admin</h3><p class="meta">Khusus pengelola website.</p><label>Email</label><input id="lgEm" type="email" autocomplete="username" required><label>Sandi</label><input id="lgPw" type="password" autocomplete="current-password" required><p id="lgErr" style="color:var(--bad);margin:0 0 8px"></p><div style="display:flex;gap:8px"><button>Masuk</button><button type="button" class="alt" onclick="$('dlg').close()">Batal</button></div></form></dialog>
 <dialog id="wdlg"><form id="wForm"><h3>Data Wilayah</h3><label>Nama wilayah *</label><input id="wNama" required><label>Jenis</label><select id="wJenis"><option>Utama</option><option>Pendukung</option></select><label>Variabel (nama dan jumlah)</label>
@@ -204,7 +214,7 @@ const SK={2026:SKP,2025:SKP25};
 let Y=String(new Date().getFullYear());if(!SK[Y])Y=Object.keys(SK).sort().pop();
 const cur=()=>SK[Y]||[];
 const LF=new Set();
-let D={lap:[],foto:[],keg:[],ren:[],edu:[],wilayah:[]};
+let D={lap:[],foto:[],keg:[],ren:[],edu:[],wilayah:[],capaian:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const isA=()=>document.body.classList.contains('isadmin');
@@ -240,13 +250,44 @@ async function addBan(i){if(!i.files[0])return;db.collection('foto').add({t:Date
 function delBan(id){if(confirm('Hapus banner ini?'))db.collection('foto').doc(id).delete().catch(werr)}
 function editTitle(){const t=prompt('Judul utama website',$('hTitle').textContent);if(t&&t.trim())db.collection('foto').doc('judul').set({t:0,title:t.trim()}).catch(werr)}
 setInterval(()=>{const n=BN().length;if(n>1&&!$('lb').open){BI=(BI+1)%n;showSlide()}},5000);
+const TDEF='Penyuluh KB DPPKB Kabupaten Jeneponto dengan pengabdian 23 tahun. Lulusan S1 Ilmu Komunikasi Universitas Terbuka, bersertifikat Penyuluh KB dari BKKBN Sulawesi Selatan. Data yang valid menjadi dasar setiap langkah pendampingan keluarga.';
+function renderT(){const t=D.foto.find(f=>f.id=='tentang');
+ $('tentang').innerHTML=`<h2>Tentang</h2><div class="card"><h3>Profil</h3><p>${esc(t?t.teks:TDEF).replace(/\n/g,'<br>')}</p><button class="alt onlyadmin" onclick="editT()">Ubah teks</button></div>
+<div class="card"><h3>Fokus kerja</h3>${['Konseling KBKR','Pendampingan 1000 HPK','Intervensi stunting','Kampung KB','Data keluarga valid'].map(x=>`<span class="tag" style="margin:3px 4px 3px 0">${x}</span>`).join('')}</div>
+<div class="card"><h3>Hubungi saya</h3><a class="btn" href="https://wa.me/6281333378883" rel="noopener">WhatsApp</a> <a class="btn alt" href="mailto:usmanksiga@gmail.com">Email</a> <a class="btn alt" href="https://instagram.com/usmank5194" rel="noopener">Instagram</a></div>`}
+function editT(){const t=D.foto.find(f=>f.id=='tentang'),v=prompt('Teks profil',t?t.teks:TDEF);if(v&&v.trim())db.collection('foto').doc('tentang').set({t:0,teks:v.trim()}).catch(werr)}
+let CB='';
+const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const fx=n=>Number(Number(n).toFixed(1)).toLocaleString('id-ID');
+function chart(T,C,P){const W=360,H=220,pl=30,pr=34,pb=22,pt=12,pw=W-pl-pr,ph=H-pb-pt,gw=pw/12,mx=Math.max(1,...T,...C)*1.15,pm=Math.max(100,...P.filter(x=>x!=null))*1.1,y=v=>pt+ph-v/mx*ph,yp=v=>pt+ph-v/pm*ph;
+ let o=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik target, capaian, dan persentase per bulan" style="width:100%;height:auto;display:block">`;
+ for(let i=0;i<=4;i++){const v=mx*i/4,yy=y(v);o+=`<line x1="${pl}" x2="${W-pr}" y1="${yy}" y2="${yy}" stroke="#dbe5ea"/><text x="${pl-4}" y="${yy+3}" font-size="8" text-anchor="end" fill="#51697a">${fx(v)}</text>`}
+ for(let i=0;i<=2;i++){const v=pm*i/2;o+=`<text x="${W-pr+4}" y="${yp(v)+3}" font-size="8" fill="#a86d00">${Math.round(v)}%</text>`}
+ T.forEach((t,m)=>{const x=pl+m*gw;o+=`<rect x="${x+gw*.12}" y="${y(t)}" width="${gw*.34}" height="${pt+ph-y(t)}" fill="#9db6c4"/><rect x="${x+gw*.5}" y="${y(C[m])}" width="${gw*.34}" height="${pt+ph-y(C[m])}" fill="#1b6a85"/><text x="${x+gw/2}" y="${H-8}" font-size="9" text-anchor="middle" fill="#10293a">${'JFMAMJJASOND'[m]}</text>`});
+ const pts=P.map((p,m)=>p==null?null:[pl+m*gw+gw/2,yp(p)]).filter(Boolean);
+ if(pts.length)o+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#e0a21b" stroke-width="2"/>`+pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#e0a21b"/>`).join('');
+ return o+'</svg><div class="lg"><span><i style="background:#9db6c4"></i>Target</span><span><i style="background:#1b6a85"></i>Capaian</span><span><i style="background:#e0a21b"></i>Persentase</span></div>'}
+function renderCap(){const L=cur();if(!L.find(x=>x[0]==CB))CB=L[0]?L[0][0]:'';const it=L.find(x=>x[0]==CB),A=isA();
+ let h=`<h2>Capaian Bulanan</h2><p class="sub">Target dari pimpinan dan realisasi per bulan, lengkap dengan grafik.</p><div class="two"><div><label>Tahun</label><select onchange="Y=this.value;render()">${Object.keys(SK).sort().reverse().map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('')}</select></div><div><label>Butir SKP</label><select onchange="CB=this.value;render()">${L.map(x=>`<option value="${x[0]}"${x[0]==CB?' selected':''}>${esc(x[0]+'. '+x[1])}</option>`).join('')}</select></div></div>`;
+ if(!it){$('capaian').innerHTML=h+'<div class="empty">SKP tahun ini belum dimasukkan.</div>';return}
+ const doc=D.capaian.find(x=>x.id==Y+'_'+CB)||{},src=doc.src||'laporan',tg=it[2],T=[],C=[],P=[];
+ for(let m=0;m<12;m++){const t=doc.target&&doc.target[m]!=null?Number(doc.target[m]):tg/12,mm=Y+'-'+String(m+1).padStart(2,'0');
+  const c=src=='laporan'?D.lap.filter(l=>l.skp==CB&&l.status=='Disetujui'&&(l.tgl||'').slice(0,7)==mm).reduce((a,l)=>a+Number(l.jml),0):Number(doc.capaian&&doc.capaian[m]||0);
+  T.push(t);C.push(c);P.push(t>0?Math.round(c/t*100):null)}
+ const ts=T.reduce((a,b)=>a+b,0),cs=C.reduce((a,b)=>a+b,0),tp=ts>0?Math.round(cs/ts*100):null,pc=p=>p==null?'-':`<b class="${p>=100?'ok':p>=50?'mid':'low'}">${p}%</b>`;
+ if(A)h+=`<div class="admin"><label>Sumber capaian</label><select onchange="srcCap(this.value)"><option value="laporan"${src=='laporan'?' selected':''}>Otomatis dari laporan yang diterbitkan</option><option value="manual"${src=='manual'?' selected':''}>Isi manual</option></select><button onclick="saveCap()">Simpan tabel</button></div>`;
+ h+=`<div class="card">${chart(T,C,P)}</div><div class="tw"><table><thead><tr><th>No</th><th>Bulan</th><th>Target</th><th>Capaian</th><th>%</th></tr></thead><tbody>`+BLN.map((b,m)=>`<tr><td>${m+1}</td><td>${b}</td><td>${A?`<input class="ct" type="number" min="0" step="any" value="${doc.target&&doc.target[m]!=null?doc.target[m]:''}" placeholder="${fx(tg/12)}">`:fx(T[m])}</td><td>${A&&src=='manual'?`<input class="cc" type="number" min="0" step="any" value="${doc.capaian&&doc.capaian[m]!=null?doc.capaian[m]:''}">`:fx(C[m])}</td><td>${pc(P[m])}</td></tr>`).join('')+`<tr class="tot"><td></td><td>Total</td><td>${fx(ts)}</td><td>${fx(cs)}</td><td>${pc(tp)}</td></tr></tbody></table></div><p class="meta">Target tahunan SKP: ${tg} ${esc(it[3])}. Kolom target yang kosong dibagi rata per bulan.</p>`;
+ $('capaian').innerHTML=h}
+function saveCap(){const g=c=>[...document.querySelectorAll('#capaian .'+c)].map(i=>i.value===''?null:Number(i.value)),o={y:Y,skp:CB,target:g('ct')},cc=g('cc');if(cc.length)o.capaian=cc;
+ db.collection('capaian').doc(Y+'_'+CB).set(o,{merge:true}).then(()=>alert('Tabel tersimpan.')).catch(werr)}
+function srcCap(v){db.collection('capaian').doc(Y+'_'+CB).set({y:Y,skp:CB,src:v},{merge:true}).catch(werr)}
 function yrUI(){const ys=[...new Set([...Object.keys(SK),...D.lap.map(l=>(l.tgl||'').slice(0,4)).filter(Boolean),Y])].sort().reverse();
  $('yr').innerHTML=ys.map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('');
  $('skpSub').textContent=Y=='2025'?'Realisasi sesuai Dokumen Evaluasi Kinerja Pegawai 2025 (predikat Baik), ditambah laporan yang diterbitkan.':'Realisasi dihitung dari laporan yang diterbitkan pada tahun ini.'}
 function fillSkp(){const y=($('lTgl').value||'').slice(0,4)||Y,v=$('lSkp').value;
  $('lSkp').innerHTML=(SK[y]||[]).map(s=>`<option value="${s[0]}">${esc(s[0]+'. '+s[1])}</option>`).join('');if(v)$('lSkp').value=v}
 function render(){
- yrUI();renderW();bnUI();
+ yrUI();renderW();bnUI();renderT();renderCap();
  $('skpList').innerHTML=!cur().length?'<div class="empty">SKP tahun ini belum dimasukkan.</div>':cur().map(([id,t,tg,u,b])=>{
   const r=(b||0)+D.lap.filter(l=>l.skp==id&&l.status=='Disetujui'&&(l.tgl||'').slice(0,4)==Y).reduce((a,l)=>a+Number(l.jml),0);
   const p=Math.min(100,Math.round(r/tg*100));
@@ -259,7 +300,7 @@ function render(){
   ${l.bukti?`<a href="${esc(l.bukti)}" rel="noopener">Bukti dukung</a>`:''}
   ${l.pejabat?`<p class="meta">Disetujui ${esc(l.tglSetuju)} oleh ${esc(l.pejabat)}</p>`:''}
   <div class="onlyadmin"><button class="alt" onclick="st('${l.id}','${pub?'Draf':'Disetujui'}')">${pub?'Sembunyikan':'Terbitkan'}</button> <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></div></article>`}).join(''):'<div class="empty">Belum ada laporan yang terbit.</div>';
- const pf=D.foto.find(f=>f.id=='profil');if(pf)$('ph').src=pf.src;const G=D.foto.filter(f=>f.id!='profil'&&f.id!='judul'&&!f.ban);
+ const pf=D.foto.find(f=>f.id=='profil');if(pf)$('ph').src=pf.src;const G=D.foto.filter(f=>!['profil','judul','tentang'].includes(f.id)&&!f.ban);
  $('galList').innerHTML=G.length?G.map(f=>`<figure><img src="${f.src}" alt="${esc(f.cap)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption>${isA()?`<button class="del" onclick="hapusFoto('${f.id}')">Hapus</button>`:''}</figure>`).join(''):'<div class="empty">Belum ada foto.</div>';
  $('lPick').innerHTML=G.length?G.map(f=>`<label><input type="checkbox" ${LF.has(f.id)?'checked':''} onchange="this.checked?LF.add('${f.id}'):LF.delete('${f.id}')"><img src="${f.src}" alt="${esc(f.cap)}"></label>`).join(''):'<span class="meta">Belum ada foto di Galeri.</span>';
  genSec();
@@ -298,11 +339,11 @@ const db=firebase.firestore(),au=firebase.auth();
 db.settings({experimentalAutoDetectLongPolling:true,merge:true});db.enablePersistence({synchronizeTabs:true}).catch(()=>{});let unsubs=[];
 function lerr(e){console.error(e);$('ld').hidden=false;$('ld').textContent='Data gagal dimuat ('+(e.code||e.message)+'). Periksa koneksi lalu muat ulang halaman.'}
 function listen(){unsubs.forEach(f=>f());unsubs=[];
- ['lap','foto','keg','ren','edu','wilayah'].forEach(k=>{let q=db.collection(k);if(k=='lap'&&!au.currentUser)q=q.where('status','==','Disetujui');
+ ['lap','foto','keg','ren','edu','wilayah','capaian'].forEach(k=>{let q=db.collection(k);if(k=='lap'&&!au.currentUser)q=q.where('status','==','Disetujui');
   unsubs.push(q.onSnapshot(sn=>{D[k]=sn.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.t||0)-(a.t||0));$('ld').hidden=true;render()},lerr))})}
 au.onAuthStateChanged(u=>{document.body.classList.toggle('isadmin',!!u);$('loginBtn').textContent=u?'Keluar':'Admin';listen()});
 render();
-const PG=['skp','laporan','keg','ren','edu','galeri','tentang','kontak'];
+const PG=['skp','laporan','keg','ren','edu','galeri','tentang','capaian'];
 function go(){let h=(location.hash||'#skp').slice(1);if(!PG.includes(h))h='skp';
  document.querySelectorAll('section').forEach(e=>{e.hidden=e.classList.contains('hero')?h!='skp':!(e.id==h||(h=='skp'&&e.id=='wil'))});
  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+h));scrollTo(0,0)}
