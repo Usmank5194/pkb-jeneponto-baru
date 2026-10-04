@@ -140,6 +140,21 @@ tr.tot td{font-weight:800;background:var(--mist)}
 [hidden]{display:none!important}
 .rk th:nth-child(2),.rk td:nth-child(2){text-align:right}
 .rk th:first-child,.rk td:first-child{text-align:left}
+[hidden]{display:none!important}
+.ab{display:grid;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 28px rgba(16,41,58,.12);margin-bottom:14px}
+@media(min-width:700px){.ab{grid-template-columns:5fr 6fr}.abp{aspect-ratio:auto!important;min-height:440px}}
+.abp{position:relative;aspect-ratio:4/5;background:#244b5f;overflow:hidden}
+.abp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.abo{position:absolute;left:0;right:0;bottom:0;padding:70px 18px 18px;background:linear-gradient(transparent,rgba(8,22,32,.92));color:#fff}
+.abo span{display:block;font-size:.78rem;letter-spacing:.2em;color:var(--gold);font-weight:800}
+.abo b{display:block;font-size:clamp(1.6rem,6vw,2.2rem);line-height:1.1;font-weight:800;text-transform:uppercase}
+.abo small{color:#c9dbe4;letter-spacing:.16em;text-transform:uppercase}
+.abd{padding:24px 20px}
+.abd dl{margin:14px 0 0;display:grid;grid-template-columns:118px 1fr;gap:12px}
+.abd dt{font-weight:800;font-size:.8rem;color:var(--sea);text-transform:uppercase;letter-spacing:.05em;padding-top:3px}
+.abd dd{margin:0}
+.abd h3{margin:22px 0 8px;font-size:.95rem;text-transform:uppercase;letter-spacing:.08em}
+.abd blockquote{margin:0 0 12px;padding:12px 14px;border-left:4px solid var(--gold);background:var(--mist);border-radius:0 12px 12px 0;font-style:italic}
 </style></head><body>
 <nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#capaian">Capaian</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div id="ld" class="ld" role="alert" hidden></div>
@@ -254,12 +269,17 @@ async function addBan(i){if(!i.files[0])return;db.collection('foto').add({t:Date
 function delBan(id){if(confirm('Hapus banner ini?'))db.collection('foto').doc(id).delete().catch(werr)}
 function editTitle(){const t=prompt('Judul utama website',$('hTitle').textContent);if(t&&t.trim())db.collection('foto').doc('judul').set({t:0,title:t.trim()}).catch(werr)}
 setInterval(()=>{const n=BN().length;if(n>1&&!$('lb').open){BI=(BI+1)%n;showSlide()}},5000);
-const TDEF='Penyuluh KB DPPKB Kabupaten Jeneponto dengan pengabdian 23 tahun. Lulusan S1 Ilmu Komunikasi Universitas Terbuka, bersertifikat Penyuluh KB dari BKKBN Sulawesi Selatan. Data yang valid menjadi dasar setiap langkah pendampingan keluarga.';
-function renderT(){const t=D.foto.find(f=>f.id=='tentang');
- $('tentang').innerHTML=`<h2>Tentang</h2><div class="card"><h3>Profil</h3><p>${esc(t?t.teks:TDEF).replace(/\n/g,'<br>')}</p><button class="alt onlyadmin" onclick="editT()">Ubah teks</button></div>
+const PRDEF='Tidak harus jadi hebat untuk memulai, tapi harus memulai untuk jadi hebat. Ingat, pekerjaan kecil yang selesai lebih baik dari rencana besar yang hanya diwacanakan. Lelah itu wajar, menyerah jangan.';
+const PHS="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23244b5f'/%3E%3Ctext x='50' y='62' font-size='36' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3EUH%3C/text%3E%3C/svg%3E";
+function renderT(){const pf=D.foto.find(f=>f.id=='profil'),pr=D.foto.find(f=>f.id=='prinsip'),W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.jenis=='Utama'?0:1));
+ const wb=W.length?'Kelurahan '+W.map(w=>esc(w.nama)+(w.jenis=='Utama'?' (utama)':'')).join(', '):'Kelurahan Empoang Selatan, Sidenre, Empoang, dan Biringkassi';
+ const rows=[['Nama','Usman Hasan'],['Jabatan','Penyuluh KB'],['Pendidikan','Ilmu Komunikasi, Universitas Terbuka'],['Wilayah kerja','Provinsi Sulawesi Selatan, Kabupaten Jeneponto, Kecamatan Binamu']];
+ $('tentang').innerHTML=`<div class="ab"><div class="abp"><img src="${pf?pf.src:PHS}" alt="Foto Usman Hasan"><div class="abo"><span>HALO, SAYA</span><b>Usman Hasan</b><small>Penyuluh KB</small></div></div>
+<div class="abd"><h2>Tentang</h2><dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}<dt>Wilayah binaan</dt><dd>${wb}</dd></dl>
+<h3>Prinsip</h3><blockquote>${esc(pr?pr.teks:PRDEF)}</blockquote><button class="alt onlyadmin" onclick="editT()">Ubah prinsip</button></div></div>
 <div class="card"><h3>Fokus kerja</h3>${['Konseling KBKR','Pendampingan 1000 HPK','Intervensi stunting','Kampung KB','Data keluarga valid'].map(x=>`<span class="tag" style="margin:3px 4px 3px 0">${x}</span>`).join('')}</div>
 <div class="card"><h3>Hubungi saya</h3><a class="btn" href="https://wa.me/6281333378883" rel="noopener">WhatsApp</a> <a class="btn alt" href="mailto:usmanksiga@gmail.com">Email</a> <a class="btn alt" href="https://instagram.com/usmank5194" rel="noopener">Instagram</a></div>`}
-function editT(){const t=D.foto.find(f=>f.id=='tentang'),v=prompt('Teks profil',t?t.teks:TDEF);if(v&&v.trim())db.collection('foto').doc('tentang').set({t:0,teks:v.trim()}).catch(werr)}
+function editT(){const t=D.foto.find(f=>f.id=='prinsip'),v=prompt('Prinsip',t?t.teks:PRDEF);if(v&&v.trim())db.collection('foto').doc('prinsip').set({t:0,teks:v.trim()}).catch(werr)}
 let CB='';
 const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const fx=n=>Number(Number(n).toFixed(1)).toLocaleString('id-ID');
@@ -317,7 +337,7 @@ function render(){
   ${l.bukti?`<a href="${esc(l.bukti)}" rel="noopener">Bukti dukung</a>`:''}
   ${l.pejabat?`<p class="meta">Disetujui ${esc(l.tglSetuju)} oleh ${esc(l.pejabat)}</p>`:''}
   <div class="onlyadmin"><button class="alt" onclick="st('${l.id}','${pub?'Draf':'Disetujui'}')">${pub?'Sembunyikan':'Terbitkan'}</button> <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></div></article>`}).join(''):'<div class="empty">Belum ada laporan yang terbit.</div>';
- const pf=D.foto.find(f=>f.id=='profil');if(pf)$('ph').src=pf.src;const G=D.foto.filter(f=>!['profil','judul','tentang'].includes(f.id)&&!f.ban);
+ const pf=D.foto.find(f=>f.id=='profil');if(pf)$('ph').src=pf.src;const G=D.foto.filter(f=>!['profil','judul','tentang','prinsip'].includes(f.id)&&!f.ban);
  $('galList').innerHTML=G.length?G.map(f=>`<figure><img src="${f.src}" alt="${esc(f.cap)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption>${isA()?`<button class="del" onclick="hapusFoto('${f.id}')">Hapus</button>`:''}</figure>`).join(''):'<div class="empty">Belum ada foto.</div>';
  $('lPick').innerHTML=G.length?G.map(f=>`<label><input type="checkbox" ${LF.has(f.id)?'checked':''} onchange="this.checked?LF.add('${f.id}'):LF.delete('${f.id}')"><img src="${f.src}" alt="${esc(f.cap)}"></label>`).join(''):'<span class="meta">Belum ada foto di Galeri.</span>';
  genSec();
