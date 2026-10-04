@@ -155,6 +155,11 @@ tr.tot td{font-weight:800;background:var(--mist)}
 .abd dd{margin:0}
 .abd h3{margin:22px 0 8px;font-size:.95rem;text-transform:uppercase;letter-spacing:.08em}
 .abd blockquote{margin:0 0 12px;padding:12px 14px;border-left:4px solid var(--gold);background:var(--mist);border-radius:0 12px 12px 0;font-style:italic}
+[hidden]{display:none!important}
+.row.lnk{cursor:pointer;border-radius:8px}
+.row.lnk:hover{background:#f4f9fb}
+.more{color:var(--sea);font-weight:600;white-space:nowrap}
+.fbar{background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:12px;box-shadow:0 4px 18px rgba(16,41,58,.08);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 </style></head><body>
 <nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#capaian">Capaian</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div id="ld" class="ld" role="alert" hidden></div>
@@ -185,7 +190,7 @@ tr.tot td{font-weight:800;background:var(--mist)}
 <label>Link bukti dukung (opsional)</label><input id="lBukti" type="url" placeholder="https://">
 <label>Dokumentasi dari Galeri (pilih satu atau lebih)</label><div class="pick" id="lPick"></div>
 <button>Terbitkan</button> <button type="button" class="alt" onclick="if($('lapForm').reportValidity())saveLap(false)">Simpan tersembunyi</button></form>
-<div id="lapList"></div></section>
+<div id="lapFilter"></div><div id="lapList"></div></section>
 
 <section id="keg"></section><section id="ren"></section><section id="edu"></section>
 
@@ -232,7 +237,7 @@ const SKP25=[['1a','Pertemuan penyuluhan BKB',12,'kali',12],['1b','Pertemuan pen
 const SK={2026:SKP,2025:SKP25};
 let Y=String(new Date().getFullYear());if(!SK[Y])Y=Object.keys(SK).sort().pop();
 const cur=()=>SK[Y]||[];
-const LF=new Set();
+const LF=new Set();let FS='',FY='',KEEP=false;
 let D={lap:[],foto:[],keg:[],ren:[],edu:[],wilayah:[],capaian:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -328,15 +333,16 @@ function render(){
  $('skpList').innerHTML=!cur().length?'<div class="empty">SKP tahun ini belum dimasukkan.</div>':cur().map(([id,t,tg,u,b])=>{
   const r=(b||0)+D.lap.filter(l=>l.skp==id&&l.status=='Disetujui'&&(l.tgl||'').slice(0,4)==Y).reduce((a,l)=>a+Number(l.jml),0);
   const p=Math.min(100,Math.round(r/tg*100));
-  return `<div class="row"><span class="no">${id}</span><div><div>${esc(t)}</div><div class="meta">${r} dari ${tg} ${u} (${p}%)</div><div class="bar"><i class="${p>=100?'full':''}" style="width:${p}%"></i></div></div></div>`}).join('');
+  return `<div class="row lnk" role="link" tabindex="0" onclick="goLap('${id}')" onkeydown="if(event.key=='Enter')goLap('${id}')"><span class="no">${id}</span><div><div>${esc(t)}</div><div class="meta">${r} dari ${tg} ${u} (${p}%) <span class="more">Lihat laporan ›</span></div><div class="bar"><i class="${p>=100?'full':''}" style="width:${p}%"></i></div></div></div>`}).join('');
  fillSkp();fillWil();
- const L=D.lap.filter(l=>isA()||l.status=='Disetujui').sort((a,b)=>b.tgl.localeCompare(a.tgl));
+ const L=D.lap.filter(l=>isA()||l.status=='Disetujui').filter(l=>!FS||(l.skp==FS&&(l.tgl||'').slice(0,4)==FY)).sort((a,b)=>b.tgl.localeCompare(a.tgl));
+ $('lapFilter').innerHTML=FS?`<div class="fbar">Butir <b>${esc(nm(FS,FY))}</b> (${esc(FY)}) <button class="alt" onclick="FS='';render()">Tampilkan semua</button></div>`:'';
  $('lapList').innerHTML=L.length?L.map(l=>{const pub=l.status=='Disetujui';return `<article class="card"><span class="tag ${pub?'Disetujui':''}">${pub?'Terbit':'Disembunyikan'}</span> <span class="meta">${esc(l.tgl)} · ${esc(l.lok)}${l.wil&&wn(l.wil)?' · '+esc(wn(l.wil)):''}</span>
   <h3>${esc(l.judul)}</h3><p class="meta">Butir SKP ${esc(nm(l.skp,(l.tgl||'').slice(0,4)))} · realisasi ${esc(l.jml)}</p><p>${esc(l.isi).replace(/\n/g,'<br>')}</p>
   ${(l.fotos||[]).length?`<div class="lf">${l.fotos.map(id=>{const f=D.foto.find(x=>x.id==id);return f?`<img src="${f.src}" alt="${esc(f.cap)}" loading="lazy">`:''}).join('')}</div>`:''}
   ${l.bukti?`<a href="${esc(l.bukti)}" rel="noopener">Bukti dukung</a>`:''}
   ${l.pejabat?`<p class="meta">Disetujui ${esc(l.tglSetuju)} oleh ${esc(l.pejabat)}</p>`:''}
-  <div class="onlyadmin"><button class="alt" onclick="st('${l.id}','${pub?'Draf':'Disetujui'}')">${pub?'Sembunyikan':'Terbitkan'}</button> <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></div></article>`}).join(''):'<div class="empty">Belum ada laporan yang terbit.</div>';
+  <div class="onlyadmin"><button class="alt" onclick="st('${l.id}','${pub?'Draf':'Disetujui'}')">${pub?'Sembunyikan':'Terbitkan'}</button> <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></div></article>`}).join(''):`<div class="empty">${FS?'Belum ada laporan untuk butir ini.':'Belum ada laporan yang terbit.'}</div>`;
  const pf=D.foto.find(f=>f.id=='profil');if(pf)$('ph').src=pf.src;const G=D.foto.filter(f=>!['profil','judul','tentang','prinsip'].includes(f.id)&&!f.ban);
  $('galList').innerHTML=G.length?G.map(f=>`<figure><img src="${f.src}" alt="${esc(f.cap)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption>${isA()?`<button class="del" onclick="hapusFoto('${f.id}')">Hapus</button>`:''}</figure>`).join(''):'<div class="empty">Belum ada foto.</div>';
  $('lPick').innerHTML=G.length?G.map(f=>`<label><input type="checkbox" ${LF.has(f.id)?'checked':''} onchange="this.checked?LF.add('${f.id}'):LF.delete('${f.id}')"><img src="${f.src}" alt="${esc(f.cap)}"></label>`).join(''):'<span class="meta">Belum ada foto di Galeri.</span>';
@@ -381,7 +387,8 @@ function listen(){unsubs.forEach(f=>f());unsubs=[];
 au.onAuthStateChanged(u=>{document.body.classList.toggle('isadmin',!!u);$('loginBtn').textContent=u?'Keluar':'Admin';listen()});
 render();
 const PG=['skp','laporan','keg','ren','edu','galeri','tentang','capaian'];
-function go(){let h=(location.hash||'#skp').slice(1);if(!PG.includes(h))h='skp';
+function goLap(id){FS=id;FY=Y;KEEP=true;render();location.hash='#laporan'}
+function go(){const had=FS;if(!KEEP)FS='';KEEP=false;if(had&&!FS)render();let h=(location.hash||'#skp').slice(1);if(!PG.includes(h))h='skp';
  document.querySelectorAll('section').forEach(e=>{e.hidden=e.classList.contains('hero')?h!='skp':!(e.id==h||(h=='skp'&&e.id=='wil'))});
  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+h));scrollTo(0,0)}
 const LB={g:[],i:0};
