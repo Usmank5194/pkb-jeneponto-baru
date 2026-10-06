@@ -160,8 +160,22 @@ tr.tot td{font-weight:800;background:var(--mist)}
 .row.lnk:hover{background:#f4f9fb}
 .more{color:var(--sea);font-weight:600;white-space:nowrap}
 .fbar{background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:12px;box-shadow:0 4px 18px rgba(16,41,58,.08);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+[hidden]{display:none!important}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
+.chip{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:99px;white-space:nowrap}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.kg{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:900px){.kg{grid-template-columns:repeat(4,1fr)}}
+.kc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;box-shadow:0 4px 14px rgba(16,41,58,.06)}
+.kc:hover{box-shadow:0 6px 20px rgba(16,41,58,.14)}
+.kh{display:flex;justify-content:space-between;gap:6px;align-items:flex-start;font-size:.85rem;color:#51697a}
+.kb{font-size:.78rem;border-radius:99px;padding:2px 9px;border:1px solid var(--line);white-space:nowrap}
+.kb::before{content:'◎ '}
+.kb.ok{background:#d6f0e3}.kb.mid{background:#fdeebf}.kb.low{background:#f8d9d5}
+.kv{font-size:2rem;font-weight:800;margin:10px 0 14px}
+.km{font-weight:600;font-size:.9rem}.kd{color:#51697a;font-size:.85rem}
 </style></head><body>
-<nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#keg">Kegiatan</a><a href="#ren">Rencana</a><a href="#edu">Edukasi</a><a href="#galeri">Galeri</a><a href="#tentang">Tentang</a><a href="#capaian">Capaian</a><button id="loginBtn" class="alt">Admin</button></nav>
+<nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#capaian">Capaian</a><a href="#kelompok">Kelompok</a><a href="#galeri">Galeri</a><a href="#edu">Edukasi</a><a href="#ren">Rencana</a><a href="#tentang">Tentang</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div id="ld" class="ld" role="alert" hidden></div>
 <div class="bar-admin"><b>Mode admin</b><button class="alt" onclick="exp()">Ekspor cadangan</button></div>
 
@@ -192,7 +206,7 @@ tr.tot td{font-weight:800;background:var(--mist)}
 <button>Terbitkan</button> <button type="button" class="alt" onclick="if($('lapForm').reportValidity())saveLap(false)">Simpan tersembunyi</button></form>
 <div id="lapFilter"></div><div id="lapList"></div></section>
 
-<section id="keg"></section><section id="ren"></section><section id="edu"></section>
+<section id="kelompok"></section><section id="ren"></section><section id="edu"></section>
 
 <section id="galeri"><h2>Galeri Kegiatan</h2>
 <p class="sub">Dokumentasi di lapangan.</p>
@@ -237,7 +251,7 @@ const SKP25=[['1a','Pertemuan penyuluhan BKB',12,'kali',12],['1b','Pertemuan pen
 const SK={2026:SKP,2025:SKP25};
 let Y=String(new Date().getFullYear());if(!SK[Y])Y=Object.keys(SK).sort().pop();
 const cur=()=>SK[Y]||[];
-const LF=new Set();let FS='',FY='',KEEP=false;
+const LF=new Set();let FS='',FY='',FW='',KEEP=false;
 let D={lap:[],foto:[],keg:[],ren:[],edu:[],wilayah:[],capaian:[]};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -285,6 +299,23 @@ function renderT(){const pf=D.foto.find(f=>f.id=='profil'),pr=D.foto.find(f=>f.i
 <div class="card"><h3>Fokus kerja</h3>${['Konseling KBKR','Pendampingan 1000 HPK','Intervensi stunting','Kampung KB','Data keluarga valid'].map(x=>`<span class="tag" style="margin:3px 4px 3px 0">${x}</span>`).join('')}</div>
 <div class="card"><h3>Hubungi saya</h3><a class="btn" href="https://wa.me/6281333378883" rel="noopener">WhatsApp</a> <a class="btn alt" href="mailto:usmanksiga@gmail.com">Email</a> <a class="btn alt" href="https://instagram.com/usmank5194" rel="noopener">Instagram</a></div>`}
 function editT(){const t=D.foto.find(f=>f.id=='prinsip'),v=prompt('Prinsip',t?t.teks:PRDEF);if(v&&v.trim())db.collection('foto').doc('prinsip').set({t:0,teks:v.trim()}).catch(werr)}
+let KW='all';
+const KARTU={2026:['1a','1b','1c','1d','8a','8b','13a','13c'],2025:['1a','1b','1c','5a','5b','10a','10b']};
+function capData(it,w){const doc=D.capaian.find(x=>x.id==Y+'_'+it[0]+(w?'_'+w:''))||{},src=doc.src||'laporan',n=w?(D.wilayah.length||1):1,T=[],C=[];
+ for(let m=0;m<12;m++){const mm=Y+'-'+String(m+1).padStart(2,'0');T.push(doc.target&&doc.target[m]!=null?Number(doc.target[m]):it[2]/12/n);
+  C.push(src=='laporan'?D.lap.filter(l=>l.skp==it[0]&&l.status=='Disetujui'&&(!w||l.wil==w)&&(l.tgl||'').slice(0,7)==mm).reduce((a,l)=>a+Number(l.jml),0):Number(doc.capaian&&doc.capaian[m]||0))}
+ return{T,C}}
+function renderK(){const W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.jenis=='Utama'?0:1)),hw=W.length>0;if(KW!='all'&&!W.find(w=>w.id==KW))KW='all';
+ const items=(KARTU[Y]||[]).map(i=>cur().find(x=>x[0]==i)).filter(Boolean),sm=(a,k)=>a.slice(0,k).reduce((x,y)=>x+y,0);
+ const chip=(v,l)=>`<button class="chip${KW==v?' on':''}" onclick="KW='${v}';render()">${l}</button>`;
+ let h=`<h2>Kelompok Binaan</h2><p class="sub">Capaian kelompok binaan per wilayah. Ketuk kartu untuk melihat laporannya.</p><label>Tahun</label><select onchange="Y=this.value;render()">${Object.keys(SK).sort().reverse().map(y=>`<option${y==Y?' selected':''}>${y}</option>`).join('')}</select>`
+ +(hw?`<div class="chips">${chip('all','Semua wilayah')}${W.map(w=>chip(w.id,(w.jenis=='Utama'?'★ ':'')+esc(w.nama))).join('')}</div>`:'');
+ if(!items.length){$('kelompok').innerHTML=h+'<div class="empty">Belum ada data untuk tahun ini.</div>';return}
+ h+='<div class="kg">'+items.map(it=>{const P=hw?(KW=='all'?W.map(w=>capData(it,w.id)):[capData(it,KW)]):[capData(it,'')],
+  T=[...Array(12)].map((_,m)=>P.reduce((a,p)=>a+p.T[m],0)),C=[...Array(12)].map((_,m)=>P.reduce((a,p)=>a+p.C[m],0));let bm=0;C.forEach((c,m)=>{if(c>0)bm=m+1});
+  const k=bm||12,t=sm(T,k),c=sm(C,k),p=t>0?Math.round(c/t*100):null,cl=p==null?'':p>=100?'ok':p>=50?'mid':'low';
+  return`<article class="kc" role="link" tabindex="0" onclick="goLap('${it[0]}','${hw&&KW!='all'?KW:''}')" onkeydown="if(event.key=='Enter')this.click()"><div class="kh"><span>${esc(it[1])}</span><b class="kb ${cl}">${p==null?'-':p+'%'}</b></div><div class="kv">${fx(c)}</div><div class="km">Target: ${fx(t)} ${esc(it[3])}</div><div class="kd">Data bulan: ${bm}</div></article>`}).join('')+'</div>';
+ $('kelompok').innerHTML=h+'<p class="meta">Persentase dihitung terhadap target sampai bulan terakhir yang terisi. Target tiap wilayah diisi di menu Capaian.</p>'}
 let CB='';
 const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const fx=n=>Number(Number(n).toFixed(1)).toLocaleString('id-ID');
@@ -329,14 +360,14 @@ function fillWil(){const v=$('lWil').value,W=[...D.wilayah].sort((a,b)=>(a.jenis
 function fillSkp(){const y=($('lTgl').value||'').slice(0,4)||Y,v=$('lSkp').value;
  $('lSkp').innerHTML=(SK[y]||[]).map(s=>`<option value="${s[0]}">${esc(s[0]+'. '+s[1])}</option>`).join('');if(v)$('lSkp').value=v}
 function render(){
- yrUI();renderW();bnUI();renderT();renderCap();
+ yrUI();renderW();bnUI();renderT();renderCap();renderK();
  $('skpList').innerHTML=!cur().length?'<div class="empty">SKP tahun ini belum dimasukkan.</div>':cur().map(([id,t,tg,u,b])=>{
   const r=(b||0)+D.lap.filter(l=>l.skp==id&&l.status=='Disetujui'&&(l.tgl||'').slice(0,4)==Y).reduce((a,l)=>a+Number(l.jml),0);
   const p=Math.min(100,Math.round(r/tg*100));
   return `<div class="row lnk" role="link" tabindex="0" onclick="goLap('${id}')" onkeydown="if(event.key=='Enter')goLap('${id}')"><span class="no">${id}</span><div><div>${esc(t)}</div><div class="meta">${r} dari ${tg} ${u} (${p}%) <span class="more">Lihat laporan ›</span></div><div class="bar"><i class="${p>=100?'full':''}" style="width:${p}%"></i></div></div></div>`}).join('');
  fillSkp();fillWil();
- const L=D.lap.filter(l=>isA()||l.status=='Disetujui').filter(l=>!FS||(l.skp==FS&&(l.tgl||'').slice(0,4)==FY)).sort((a,b)=>b.tgl.localeCompare(a.tgl));
- $('lapFilter').innerHTML=FS?`<div class="fbar">Butir <b>${esc(nm(FS,FY))}</b> (${esc(FY)}) <button class="alt" onclick="FS='';render()">Tampilkan semua</button></div>`:'';
+ const L=D.lap.filter(l=>isA()||l.status=='Disetujui').filter(l=>!FS||(l.skp==FS&&(l.tgl||'').slice(0,4)==FY&&(!FW||l.wil==FW))).sort((a,b)=>b.tgl.localeCompare(a.tgl));
+ $('lapFilter').innerHTML=FS?`<div class="fbar">Butir <b>${esc(nm(FS,FY))}</b> (${esc(FY)})${FW&&wn(FW)?' · '+esc(wn(FW)):''} <button class="alt" onclick="FS='';render()">Tampilkan semua</button></div>`:'';
  $('lapList').innerHTML=L.length?L.map(l=>{const pub=l.status=='Disetujui';return `<article class="card"><span class="tag ${pub?'Disetujui':''}">${pub?'Terbit':'Disembunyikan'}</span> <span class="meta">${esc(l.tgl)} · ${esc(l.lok)}${l.wil&&wn(l.wil)?' · '+esc(wn(l.wil)):''}</span>
   <h3>${esc(l.judul)}</h3><p class="meta">Butir SKP ${esc(nm(l.skp,(l.tgl||'').slice(0,4)))} · realisasi ${esc(l.jml)}</p><p>${esc(l.isi).replace(/\n/g,'<br>')}</p>
   ${(l.fotos||[]).length?`<div class="lf">${l.fotos.map(id=>{const f=D.foto.find(x=>x.id==id);return f?`<img src="${f.src}" alt="${esc(f.cap)}" loading="lazy">`:''}).join('')}</div>`:''}
@@ -348,8 +379,7 @@ function render(){
  $('lPick').innerHTML=G.length?G.map(f=>`<label><input type="checkbox" ${LF.has(f.id)?'checked':''} onchange="this.checked?LF.add('${f.id}'):LF.delete('${f.id}')"><img src="${f.src}" alt="${esc(f.cap)}"></label>`).join(''):'<span class="meta">Belum ada foto di Galeri.</span>';
  genSec();
 }
-const C={keg:['Kegiatan di Lapangan','Jejak kerja yang sudah dilakukan.',[['judul','Judul kegiatan'],['tahun','Tahun','number'],['skp','Butir SKP','skp'],['desk','Deskripsi','ta']]],
-ren:['Rencana Kerja','Program yang sedang berjalan dan akan datang.',[['periode','Periode'],['status','Status','sel:Sedang berjalan,Rencana,Visi'],['judul','Judul rencana'],['desk','Deskripsi','ta']]],
+const C={ren:['Rencana Kerja','Program yang sedang berjalan dan akan datang.',[['periode','Periode'],['status','Status','sel:Sedang berjalan,Rencana,Visi'],['judul','Judul rencana'],['desk','Deskripsi','ta']]],
 edu:['Modul Edukasi','Materi untuk dibagikan. Tempel link PDF dari Google Drive.',[['judul','Judul modul'],['kat','Kategori','sel:Pelayanan KB,Stunting & Gizi,Kesehatan Reproduksi,GenRE,Kampung KB,MEKOP,Manajemen Data'],['desk','Deskripsi','ta'],['link','Link file PDF','url']]]};
 function genSec(){for(const k in C){D[k]=D[k]||[];const [t,s,F]=C[k];
  const inp=([n,l,ty])=>`<label>${l}</label>`+(ty=='ta'?`<textarea id="${k}_${n}" rows="3" required></textarea>`:ty=='skp'?`<select id="${k}_${n}">${cur().map(x=>`<option value="${x[0]}">${esc(x[0]+'. '+x[1])}</option>`).join('')}</select>`:ty&&ty.startsWith('sel:')?`<select id="${k}_${n}">${ty.slice(4).split(',').map(o=>`<option>${esc(o)}</option>`).join('')}</select>`:`<input id="${k}_${n}" type="${ty||'text'}" ${n=='link'?'':'required'}>`);
@@ -386,8 +416,8 @@ function listen(){unsubs.forEach(f=>f());unsubs=[];
   unsubs.push(q.onSnapshot(sn=>{D[k]=sn.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.t||0)-(a.t||0));$('ld').hidden=true;render()},lerr))})}
 au.onAuthStateChanged(u=>{document.body.classList.toggle('isadmin',!!u);$('loginBtn').textContent=u?'Keluar':'Admin';listen()});
 render();
-const PG=['skp','laporan','keg','ren','edu','galeri','tentang','capaian'];
-function goLap(id){FS=id;FY=Y;KEEP=true;render();location.hash='#laporan'}
+const PG=['skp','laporan','kelompok','ren','edu','galeri','tentang','capaian'];
+function goLap(id,w){FS=id;FY=Y;FW=w||'';KEEP=true;render();location.hash='#laporan'}
 function go(){const had=FS;if(!KEEP)FS='';KEEP=false;if(had&&!FS)render();let h=(location.hash||'#skp').slice(1);if(!PG.includes(h))h='skp';
  document.querySelectorAll('section').forEach(e=>{e.hidden=e.classList.contains('hero')?h!='skp':!(e.id==h||(h=='skp'&&e.id=='wil'))});
  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+h));scrollTo(0,0)}
