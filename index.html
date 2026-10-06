@@ -174,6 +174,15 @@ tr.tot td{font-weight:800;background:var(--mist)}
 .kb.ok{background:#d6f0e3}.kb.mid{background:#fdeebf}.kb.low{background:#f8d9d5}
 .kv{font-size:2rem;font-weight:800;margin:10px 0 14px}
 .km{font-weight:600;font-size:.9rem}.kd{color:#51697a;font-size:.85rem}
+[hidden]{display:none!important}
+#prn{display:none}
+.pc{text-align:center;font-weight:bold;margin-bottom:12px}
+.pt{width:100%;border-collapse:collapse;box-shadow:none;border-radius:0}
+.pt th,.pt td,.pt td:nth-child(n),.pt th:nth-child(n){border:1px solid #000;padding:2px 8px;text-align:center;white-space:normal}
+.pt th{background:#cfe0f3;font-size:10pt}
+.sg{display:flex;justify-content:space-between;margin-top:18px;text-align:center}
+@page{size:A4;margin:14mm}
+@media print{body>*:not(#prn){display:none!important}#prn{display:block!important;color:#000;background:#fff;font:11pt 'Times New Roman',Times,serif;line-height:1.4}}
 </style></head><body>
 <nav><a href="#skp">Beranda</a><a href="#laporan">Laporan</a><a href="#capaian">Capaian</a><a href="#kelompok">Kelompok</a><a href="#galeri">Galeri</a><a href="#edu">Edukasi</a><a href="#ren">Rencana</a><a href="#tentang">Tentang</a><button id="loginBtn" class="alt">Admin</button></nav>
 <div id="ld" class="ld" role="alert" hidden></div>
@@ -221,6 +230,10 @@ tr.tot td{font-weight:800;background:var(--mist)}
 <dialog id="wdlg"><form id="wForm"><h3>Data Wilayah</h3><label>Nama wilayah *</label><input id="wNama" required><label>Jenis</label><select id="wJenis"><option>Utama</option><option>Pendukung</option></select><label>Variabel (nama dan jumlah)</label>
 <datalist id="vs"><option value="Lingkungan"><option value="Keluarga (KK)"><option value="PUS"><option value="Jiwa"><option value="Baduta"><option value="Ibu hamil"><option value="Lansia"><option value="Remaja"><option value="Peserta KB aktif"></datalist>
 <div id="wRows"></div><button type="button" class="alt" onclick="wAdd()">+ Tambah variabel</button><div style="display:flex;gap:8px;margin-top:14px"><button>Simpan</button><button type="button" class="alt" onclick="$('wdlg').close()">Batal</button></div></form></dialog>
+<dialog id="pdlg"><form id="pForm"><h3>Cetak laporan</h3><p class="meta">Isi data penandatangan. Data ini hanya disimpan di HP ini, tidak tampil di website.</p>
+<label>Sumber data</label><input id="pSrc" required><label>Nama Ka. UPTD KB Kec. Binamu</label><input id="pKa"><label>NIP Ka. UPTD</label><input id="pKn"><label>Nama PKB</label><input id="pPk"><label>NIP PKB</label><input id="pPn">
+<div style="display:flex;gap:8px"><button>Cetak / simpan PDF</button><button type="button" class="alt" onclick="$('pdlg').close()">Batal</button></div></form></dialog>
+<div id="prn"></div>
 <footer>© 2026 Usman Hasan, Penyuluh KB Kel. Empoang Selatan, Jeneponto</footer>
 
 <script>
@@ -316,6 +329,29 @@ function renderK(){const W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.
   const k=bm||12,t=sm(T,k),c=sm(C,k),p=t>0?Math.round(c/t*100):null,cl=p==null?'':p>=100?'ok':p>=50?'mid':'low';
   return`<article class="kc" role="link" tabindex="0" onclick="goLap('${it[0]}','${hw&&KW!='all'?KW:''}')" onkeydown="if(event.key=='Enter')this.click()"><div class="kh"><span>${esc(it[1])}</span><b class="kb ${cl}">${p==null?'-':p+'%'}</b></div><div class="kv">${fx(c)}</div><div class="km">Target: ${fx(t)} ${esc(it[3])}</div><div class="kd">Data bulan: ${bm}</div></article>`}).join('')+'</div>';
  $('kelompok').innerHTML=h+'<p class="meta">Persentase dihitung terhadap target sampai bulan terakhir yang terisi. Target tiap wilayah diisi di menu Capaian.</p>'}
+let LC=null;
+function yPct(T,C,P,mode){let bm=0;C.forEach((c,m)=>{if(c>0)bm=m+1});if(mode=='last')return bm?P[bm-1]:null;if(mode=='avg'){const a=P.slice(0,bm||12).filter(x=>x!=null);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null}
+ const ts=T.reduce((x,y)=>x+y,0),cs=C.reduce((x,y)=>x+y,0);return ts>0?Math.round(cs/ts*100):null}
+function lineSvg(C,T){const W=520,H=190,pl=34,pr=10,pt=18,pb=22,pw=W-pl-pr,ph=H-pt-pb,all=[...C,...T],mn=Math.floor(Math.min(...all)*.9),mx=Math.ceil(Math.max(...all)*1.1)||1,x=m=>pl+pw*m/11,y=v=>pt+ph-(v-mn)/((mx-mn)||1)*ph;
+ const ln=(a,c)=>`<polyline points="${a.map((v,m)=>x(m)+','+y(v)).join(' ')}" fill="none" stroke="${c}" stroke-width="2"/>`;
+ let o=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;border:1px solid #999">`;
+ for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4;o+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#ddd"/><text x="${pl-4}" y="${y(v)+3}" font-size="9" text-anchor="end">${fx(v)}</text>`}
+ BLN.forEach((b,m)=>o+=`<text x="${x(m)}" y="${H-8}" font-size="8" text-anchor="middle">${b.slice(0,3).toUpperCase()}</text>`);
+ return o+ln(C,'#4a7fc1')+ln(T,'#e11')+'<text x="40" y="11" font-size="9" fill="#4a7fc1">— Capaian</text><text x="110" y="11" font-size="9" fill="#e11">— Target</text></svg>'}
+function openP(){let f={};try{f=JSON.parse(localStorage.getItem('pkb_p')||'{}')||{}}catch(e){}
+ $('pSrc').value=f.src||'SIGA';$('pKa').value=f.ka||'';$('pKn').value=f.kn||'';$('pPk').value=f.pk||'Usman Hasan';$('pPn').value=f.pn||'';$('pdlg').showModal()}
+function buildPrint(f){const L=LC,eq=L.T.every(t=>Math.abs(t-L.T[0])<1e-9),tgT=eq?fx(L.T[0]):fx(L.T.reduce((a,b)=>a+b,0))+' '+L.unit+' setahun',
+ area=L.wil?'Kel. '+L.wil:'wilayah binaan',tgl=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),pct=yPct(L.T,L.C,L.P,L.mode),pt=pct==null?'-':pct+'%';
+ const rows=BLN.map((b,m)=>`<tr><td>${b.toUpperCase()}</td><td>${fx(L.C[m])}</td><td>${fx(L.T[m])}</td><td>${L.P[m]==null?'-':L.P[m]+'%'}</td></tr>`).join('');
+ $('prn').innerHTML=`<div class="pc">PRESENTASE CAPAIAN ${esc(L.it[1].toUpperCase())}<br>${esc(area.toUpperCase())} KECAMATAN BINAMU<br>JANUARI S/D DESEMBER TAHUN ${Y}</div>
+<p><b>A.</b> Tabel rekapan presentase capaian setiap bulan</p><table class="pt"><thead><tr><th>BULAN</th><th>CAPAIAN (${esc(L.unit)})</th><th>TARGET</th><th>% CAPAIAN BULANAN</th></tr></thead><tbody>${rows}<tr><th colspan="3">${L.mode=='avg'?'RATA-RATA PRESENTASE (%) CAPAIAN TAHUN ':L.mode=='last'?'PRESENTASE (%) CAPAIAN BULAN TERAKHIR TAHUN ':'PRESENTASE (%) CAPAIAN TAHUN '}${Y}</th><th>${pt}</th></tr></tbody></table><p><i>Sumber : ${esc(f.src)}, ${tgl}</i></p>
+<p><b>B.</b> Capaian terhadap target yang diberikan Dinas</p>${lineSvg(L.C,L.T)}<p><i>Sumber : ${esc(f.src)}, ${tgl}</i></p>
+<p style="text-align:justify">Capaian terhadap target yang diberikan Dinas Pengendalian Penduduk dan Keluarga Berencana Kabupaten Jeneponto Tahun ${Y} untuk ${esc(area)} Kecamatan Binamu telah mencapai <b>${pt}</b> ${L.mode=='avg'?'dari rata-rata capaian setiap bulannya dari target yang diberikan yaitu ':'dari target yang diberikan yaitu '}${tgT}.</p>
+<div class="sg"><div>Mengetahui,<br>Ka. UPTD KB Kec. Binamu<br><br><br><br><u><b>${esc(f.ka)}</b></u><br>NIP. ${esc(f.kn)}</div><div><br>PKB<br><br><br><br><u><b>${esc(f.pk)}</b></u><br>NIP. ${esc(f.pn)}</div></div>`}
+$('pForm').onsubmit=e=>{e.preventDefault();const f={src:$('pSrc').value,ka:$('pKa').value,kn:$('pKn').value,pk:$('pPk').value,pn:$('pPn').value};
+ try{localStorage.setItem('pkb_p',JSON.stringify(f))}catch(x){}buildPrint(f);$('pdlg').close();setTimeout(()=>print(),300)};
+function modeCap(v){db.collection('capaian').doc(capId()).set({y:Y,skp:CB,w:CW=='all'?null:CW,calc:v},{merge:true}).catch(werr)}
+function fillT(){const v=$('tAll').value;if(v==='')return;document.querySelectorAll('#capaian .ct').forEach(i=>i.value=v)}
 let CB='';
 const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const fx=n=>Number(Number(n).toFixed(1)).toLocaleString('id-ID');
@@ -343,10 +379,11 @@ function renderCap(){const L=cur(),A=isA(),W=[...D.wilayah].sort((a,b)=>(a.jenis
   return{doc,src,T,C}};
  const sm=(a,m)=>a.reduce((x,r)=>x+r[m],0),add=(a)=>a.reduce((x,y)=>x+y,0),R2=agg?W.map(w=>calc(w.id)):[calc(wid)];
  const T=[...Array(12)].map((_,m)=>R2.reduce((a,r)=>a+r.T[m],0)),C=[...Array(12)].map((_,m)=>R2.reduce((a,r)=>a+r.C[m],0)),P=T.map((t,m)=>t>0?Math.round(C[m]/t*100):null);
- const {doc,src}=R2[0],ts=add(T),cs=add(C),tp=ts>0?Math.round(cs/ts*100):null,pc=p=>p==null?'-':`<b class="${p>=100?'ok':p>=50?'mid':'low'}">${p}%</b>`,ed=A&&!agg;
+ const {doc,src}=R2[0],ts=add(T),cs=add(C),mode=doc.calc||'sum',tp=yPct(T,C,P,mode),pc=p=>p==null?'-':`<b class="${p>=100?'ok':p>=50?'mid':'low'}">${p}%</b>`,ed=A&&!agg;
  if(A&&agg)h+='<p class="meta">Ini total dari semua wilayah. Pilih satu wilayah untuk mengisi target dan capaian.</p>';
- if(ed)h+=`<div class="admin"><label>Sumber capaian</label><select onchange="srcCap(this.value)"><option value="laporan"${src=='laporan'?' selected':''}>Otomatis dari laporan yang diterbitkan</option><option value="manual"${src=='manual'?' selected':''}>Isi manual</option></select><button onclick="saveCap()">Simpan tabel</button></div>`;
- h+=`<div class="card"><p class="meta" style="margin:0 0 6px">${agg?'Semua wilayah':esc(wn(wid)||'Semua wilayah')}</p>${chart(T,C,P)}</div><div class="tw"><table><thead><tr><th>No</th><th>Bulan</th><th>Target</th><th>Capaian</th><th>%</th></tr></thead><tbody>`+BLN.map((b,m)=>`<tr><td>${m+1}</td><td>${b}</td><td>${ed?`<input class="ct" type="number" min="0" step="any" value="${doc.target&&doc.target[m]!=null?doc.target[m]:''}" placeholder="${fx(R2[0].T[m])}">`:fx(T[m])}</td><td>${ed&&src=='manual'?`<input class="cc" type="number" min="0" step="any" value="${doc.capaian&&doc.capaian[m]!=null?doc.capaian[m]:''}">`:fx(C[m])}</td><td>${pc(P[m])}</td></tr>`).join('')+`<tr class="tot"><td></td><td>Total</td><td>${fx(ts)}</td><td>${fx(cs)}</td><td>${pc(tp)}</td></tr></tbody></table></div>`;
+ if(ed)h+=`<div class="admin"><label>Sumber capaian</label><select onchange="srcCap(this.value)"><option value="laporan"${src=='laporan'?' selected':''}>Otomatis dari laporan yang diterbitkan</option><option value="manual"${src=='manual'?' selected':''}>Isi manual</option></select><label>Cara hitung persentase tahunan</label><select onchange="modeCap(this.value)"><option value="sum"${mode=='sum'?' selected':''}>Akumulasi (total capaian ÷ total target)</option><option value="avg"${mode=='avg'?' selected':''}>Rata-rata persentase bulanan</option><option value="last"${mode=='last'?' selected':''}>Persentase bulan terakhir yang terisi</option></select><label>Isi target sama untuk semua bulan</label><div style="display:flex;gap:8px"><input id="tAll" type="number" min="0" step="any" placeholder="Target per bulan"><button type="button" class="alt" onclick="fillT()">Isi semua bulan</button></div><button onclick="saveCap()">Simpan tabel</button> <button class="alt" onclick="openP()">Cetak laporan</button></div>`;
+ LC={it,T,C,P,wil:agg?'':wn(wid),unit:it[3],mode};
+ h+=`<div class="card"><p class="meta" style="margin:0 0 6px">${agg?'Semua wilayah':esc(wn(wid)||'Semua wilayah')}</p>${chart(T,C,P)}</div><div class="tw"><table><thead><tr><th>No</th><th>Bulan</th><th>Target</th><th>Capaian</th><th>%</th></tr></thead><tbody>`+BLN.map((b,m)=>`<tr><td>${m+1}</td><td>${b}</td><td>${ed?`<input class="ct" type="number" min="0" step="any" value="${doc.target&&doc.target[m]!=null?doc.target[m]:''}" placeholder="${fx(R2[0].T[m])}">`:fx(T[m])}</td><td>${ed&&src=='manual'?`<input class="cc" type="number" min="0" step="any" value="${doc.capaian&&doc.capaian[m]!=null?doc.capaian[m]:''}">`:fx(C[m])}</td><td>${pc(P[m])}</td></tr>`).join('')+`<tr class="tot"><td></td><td>${mode=='avg'?'Rata-rata %':mode=='last'?'Bulan terakhir %':'Total'}</td><td>${fx(ts)}</td><td>${fx(cs)}</td><td>${pc(tp)}</td></tr></tbody></table></div>`;
  if(agg)h+=`<h3 style="margin:18px 0 8px">Rekap per wilayah</h3><div class="tw"><table class="rk"><thead><tr><th>Wilayah</th><th>Target</th><th>Capaian</th><th>%</th></tr></thead><tbody>${W.map((w,i)=>{const t=add(R2[i].T),c=add(R2[i].C);return`<tr><td>${w.jenis=='Utama'?'★ ':''}${esc(w.nama)}</td><td>${fx(t)}</td><td>${fx(c)}</td><td>${pc(t>0?Math.round(c/t*100):null)}</td></tr>`}).join('')}</tbody></table></div>`;
  $('capaian').innerHTML=h+`<p class="meta">Target tahunan SKP: ${tg} ${esc(it[3])}. Target yang kosong dibagi rata per bulan dan per wilayah.</p>`}
 function saveCap(){const g=c=>[...document.querySelectorAll('#capaian .'+c)].map(i=>i.value===''?null:Number(i.value)),o={y:Y,skp:CB,w:CW=='all'?null:CW,target:g('ct')},cc=g('cc');if(cc.length)o.capaian=cc;
