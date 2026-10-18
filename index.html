@@ -231,7 +231,7 @@ tr.tot td{font-weight:800;background:var(--mist)}
   <label>Isi Laporan / Hasil Pelaksanaan *</label><textarea id="lIsi" rows="4" required></textarea>
   <label>Link bukti dukung (opsional)</label><input id="lBukti" type="url" placeholder="https://">
   <label>Dokumentasi dari Galeri (pilih satu atau lebih)</label><div class="pick" id="lPick"></div>
-  <button>Terbitkan</button> 
+  <button type="submit" id="btnSubmitLap">Terbitkan</button> 
   <button type="button" class="alt" onclick="if($('lapForm').reportValidity())saveLap(false)">Simpan tersembunyi</button>
 </form>
 <div id="lapFilter"></div><div id="lapList"></div></section>
@@ -502,7 +502,7 @@ function saveLap(pub){
       alert('Laporan berhasil diperbarui!');
       editId = null;
       $('lapForm').reset(); LF.clear(); render();
-      document.querySelector('#lapForm button[type="submit"]').textContent = 'Terbitkan';
+      document.getElementById('btnSubmitLap').textContent = 'Terbitkan';
     }).catch(werr);
   } else {
     db.collection('lap').add(data).catch(werr);
@@ -529,8 +529,7 @@ function editLap(id) {
   
   LF.clear();
   if (lap.fotos) lap.fotos.forEach(fotoId => LF.add(fotoId));
-  
-  document.querySelector('#lapForm button[type="submit"]').textContent = 'Update Laporan';
+   document.getElementById('btnSubmitLap').textContent = 'Update Laporan';
   
   window.scrollTo({ top: 0, behavior: 'smooth' });
   render();
