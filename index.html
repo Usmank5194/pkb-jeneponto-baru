@@ -202,7 +202,7 @@ tr.tot td{font-weight:800;background:var(--mist)}
 
 <section class="hero"><aside class="bn" id="bn" hidden></aside><div><div class="pw"><img class="ph" id="ph" alt="Foto Usman Hasan" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23244b5f'/%3E%3Ctext x='50' y='62' font-size='36' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3EUH%3C/text%3E%3C/svg%3E"><label class="btn alt onlyadmin ganti">Ganti foto<input type="file" accept="image/*" hidden onchange="setProfil(this)"></label></div><div class="t">
 <h1 id="hTitle">Melayani Keluarga, Membangun Generasi Berkualitas</h1>
-<div class="nm"><b>Usman Hasan</b><span>Penyuluh KB · DPPKB Kabupaten Jeneponto</span></div>
+<div class="nm"><b>Usman Hasan.S.I.Kom</b><span>Penyuluh KB · DP2KBP3A Kabupaten Jeneponto</span></div>
 <button class="btn alt onlyadmin ganti" style="width:auto" onclick="editTitle()">Ubah judul</button>
 <p id="hText"></p>
 <div class="stats" id="hStats"></div>
@@ -340,8 +340,8 @@ const PRDEF='Tidak harus jadi hebat untuk memulai, tapi harus memulai untuk jadi
 const PHS="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23244b5f'/%3E%3Ctext x='50' y='62' font-size='36' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3EUH%3C/text%3E%3C/svg%3E";
 function renderT(){const pf=D.foto.find(f=>f.id=='profil'),pr=D.foto.find(f=>f.id=='prinsip'),W=[...D.wilayah].sort((a,b)=>(a.jenis=='Utama'?0:1)-(b.jenis=='Utama'?0:1));
  const wb=W.length?'Kelurahan '+W.map(w=>esc(w.nama)+(w.jenis=='Utama'?' (utama)':'')).join(', '):'Kelurahan Empoang Selatan, Sidenre, Empoang, dan Biringkassi';
- const rows=[['Nama','Usman Hasan'],['Jabatan','Penyuluh KB'],['Pendidikan','Ilmu Komunikasi, Universitas Terbuka'],['Wilayah kerja','Provinsi Sulawesi Selatan, Kabupaten Jeneponto, Kecamatan Binamu']];
- $('tentang').innerHTML=`<div class="ab"><div class="abp"><img src="${pf?pf.src:PHS}" alt="Foto Usman Hasan"><div class="abo"><span>HALO, SAYA</span><b>Usman Hasan</b><small>Penyuluh KB</small></div></div>
+ const rows=[['Nama','Usman Hasan,S.I.Kom'],['Jabatan','Penyuluh KB'],['Pendidikan','Ilmu Komunikasi, Universitas Terbuka'],['Wilayah kerja','Provinsi Sulawesi Selatan, Kabupaten Jeneponto, Kecamatan Binamu']];
+ $('tentang').innerHTML=`<div class="ab"><div class="abp"><img src="${pf?pf.src:PHS}" alt="Foto Usman Hasan"><div class="abo"><span>HALO, SAYA</span><b>Usman Siga</b><small>Penyuluh KB</small></div></div>
 <div class="abd"><h2>Tentang</h2><dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}<dt>Wilayah binaan</dt><dd>${wb}</dd></dl>
 <h3>Prinsip</h3><blockquote>${esc(pr?pr.teks:PRDEF)}</blockquote><button class="alt onlyadmin" onclick="editT()">Ubah prinsip</button></div></div>
 <div class="card"><h3>Fokus kerja</h3>${['Konseling KBKR','Pendampingan 1000 HPK','Intervensi stunting','Kampung KB','Data keluarga valid'].map(x=>`<span class="tag" style="margin:3px 4px 3px 0">${x}</span>`).join('')}</div>
