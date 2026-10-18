@@ -1,36 +1,133 @@
-body { background: #0b1120 !important; color: #e2e8f0 !important; }
-nav { background: #0b1120 !important; border-bottom: 1px solid #1e293b !important; }
-nav a { color: #cbd5e1 !important; }
-nav a.on { background: #facc15 !important; color: #000 !important; }
-.hero, section { background: transparent !important; }
-h1, h2, h3 { color: #fff !important; }
-.sub, .meta, .hero p { color: #94a3b8 !important; }
-.card, .kc, .wv2 div, .skp { background: #1e293b !important; border: 1px solid #334155 !important; color: #e2e8f0 !important; }
-.kv, .stats b { color: #facc15 !important; }
-table { background: #1e293b !important; color: #e2e8f0 !important; }
-th { background: #0f172a !important; color: #94a3b8 !important; }
-td { border-bottom: 1px solid #334155 !important; }
-input, select, textarea { background: #0f172a !important; color: #fff !important; border: 1px solid #334155 !important; }
-.kb { background: #334155 !important; color: #fff !important; }
-.kb.ok { background: #166534 !important; color: #86efac !important; }
-.kb.low { background: #7f1d1d !important; color: #fca5a5 !important; }
-/* --- PERBAIKAN TEKS YANG TENGGELAM --- */
+/* ==========================================
+   TEMA BARU: LIGHT GLASSMORPHISM (DentaCare Style)
+   ========================================== */
 
-/* 1. Teks Label Formulir (Tanggal, Peserta, dll) */
-label { color: #cbd5e1 !important; font-weight: 600; }
+/* Latar Belakang Biru Muda Berkilau */
+body {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%) !important;
+  color: #0f172a !important;
+  min-height: 100vh;
+  background-attachment: fixed;
+}
 
-/* 2. Teks di dalam kotak input (Placeholder seperti dd/mm/yyyy) */
-input::placeholder, textarea::placeholder { color: #64748b !important; opacity: 1; }
+/* Navigasi Atas (Efek Kaca) */
+nav {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+}
+nav a { color: #0f172a !important; font-weight: 600; }
+nav a.on { 
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important; 
+  color: #fff !important; 
+  box-shadow: 0 4px 10px rgba(6, 182, 212, 0.4);
+}
+nav button {
+  background: #fff !important;
+  color: #0f172a !important;
+  border: 1px solid #bae6fd !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
 
-/* 3. Teks di menu "Tentang" (NAMA, JABATAN, dll) */
-.abd dt { color: #facc15 !important; } /* Judul jadi warna kuning */
-.abd dd, .abd p { color: #cbd5e1 !important; } /* Isi teks jadi terang */
-.abd blockquote { background: rgba(255, 255, 255, 0.05) !important; color: #e2e8f0 !important; border-left: 4px solid #facc15 !important; }
+/* Efek Kaca pada Kartu (Cards) */
+.card, .kc, .skp, .wv2 div, .ab, .admin {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 20px !important; /* Sudut membulat modern */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+  color: #1e293b !important;
+}
 
-/* 4. Tombol/Label Kecil (Fokus kerja, Tag Terbit, dll) */
-.tag { background: #334155 !important; color: #e2e8f0 !important; border: 1px solid #475569 !important; }
-.tag.Disetujui { background: #166534 !important; color: #86efac !important; }
-.tag.Diajukan { background: #854d0e !important; color: #fde047 !important; }
+/* Teks dan Judul */
+h1, h2, h3, .stats b { color: #0f172a !important; }
+.sub, .meta, .hero p { color: #475569 !important; font-weight: 500; }
+label { color: #1e293b !important; font-weight: 600; }
 
-/* 5. Tulisan Angka di Grafik (Capaian) */
-svg text { fill: #94a3b8 !important; }
+/* Warna Angka di Kartu */
+.kc .kv, .wv2 b { 
+  color: #0284c7 !important; 
+  text-shadow: 0 2px 10px rgba(2, 132, 199, 0.2);
+}
+
+/* Tombol Bulat Panjang (Pill Shape) ala DentaCare */
+button, .btn {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 50px !important; /* Tombol jadi kapsul membulat */
+  padding: 10px 24px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 15px rgba(6, 182, 212, 0.3) !important;
+  transition: all 0.2s;
+}
+button:hover, .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(6, 182, 212, 0.5) !important;
+}
+button.alt, .btn.alt {
+  background: #fff !important;
+  color: #0284c7 !important;
+  border: 1px solid #bae6fd !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+}
+button.red { 
+  background: linear-gradient(135deg, #ef4444 0%, #f43f5e 100%) !important; 
+}
+
+/* Tabel & Form Input */
+table { 
+  background: rgba(255, 255, 255, 0.8) !important; 
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+th { background: rgba(186, 230, 253, 0.5) !important; color: #0f172a !important; }
+td { border-bottom: 1px solid rgba(0,0,0,0.05) !important; color: #1e293b !important; }
+tr.tot td { background: #e0f2fe !important; color: #0284c7 !important; }
+
+input, select, textarea {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid #bae6fd !important;
+  color: #0f172a !important;
+  border-radius: 12px !important; /* Input membulat */
+  padding: 10px 15px !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15) !important;
+}
+input::placeholder, textarea::placeholder { color: #64748b !important; }
+
+/* Tag / Label Status */
+.tag { 
+  background: #e0f2fe !important; 
+  color: #0369a1 !important; 
+  border: 1px solid #bae6fd !important; 
+  border-radius: 50px;
+  padding: 4px 12px;
+}
+.tag.Disetujui { background: #dcfce7 !important; color: #166534 !important; border-color: #bbf7d0 !important; }
+.tag.Diajukan { background: #fef9c3 !important; color: #854d0e !important; border-color: #fef08a !important; }
+.kb { background: #f1f5f9 !important; color: #334155 !important; border-radius: 20px; }
+.kb.ok { background: #dcfce7 !important; color: #166534 !important; }
+.kb.low { background: #fee2e2 !important; color: #991b1b !important; }
+.kb.mid { background: #fef9c3 !important; color: #854d0e !important; }
+
+/* Footer & Dialog */
+footer {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(10px);
+  color: #475569 !important;
+  border-top: 1px solid rgba(255,255,255,0.8);
+}
+dialog {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 20px !important;
+  color: #0f172a !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
+}
+dialog h3 { color: #0284c7 !important; }
