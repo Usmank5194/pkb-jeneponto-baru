@@ -8,10 +8,10 @@ body {
   color: #0f172a !important;
   min-height: 100vh;
   background-attachment: fixed;
-  padding-bottom: 100px !important; /* Jarak agar footer tidak tertutup menu bawah */
+  padding-bottom: 100px !important;
 }
 
-/* 2. MEMPERBAIKI TEKS YANG TENGGELAM (Gambar 3) */
+/* 2. MEMPERBAIKI TEKS YANG TENGGELAM */
 .hero p, #hText { 
   color: #ffffff !important; 
   text-shadow: 0 2px 5px rgba(0,0,0,0.5) !important; 
@@ -27,13 +27,9 @@ body {
 h1, h2, h3, label { color: #0f172a !important; }
 .sub, .meta { color: #475569 !important; font-weight: 500; }
 
-/* 3. MEMPERBAIKI DROPDOWN SKP YANG HITAM (Gambar 2) */
-/* Memaksa mode terang untuk elemen bawaan HP */
+/* 3. MEMPERBAIKI DROPDOWN SKP YANG HITAM */
 :root { color-scheme: light !important; }
-select, option, optgroup {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-}
+select, option, optgroup { background-color: #ffffff !important; color: #0f172a !important; }
 input, select, textarea {
   background: rgba(255, 255, 255, 0.9) !important;
   border: 1px solid #7dd3fc !important;
@@ -54,7 +50,7 @@ input, select, textarea {
 }
 .kc .kv, .wv2 b { color: #0284c7 !important; text-shadow: 0 2px 10px rgba(2, 132, 199, 0.2); }
 
-/* 5. UBAH NAVIGASI ATAS JADI MENU BAWAH (Seperti Aplikasi Android) */
+/* 5. UBAH NAVIGASI ATAS JADI MENU BAWAH */
 @media screen and (max-width: 768px) {
   nav {
     position: fixed !important;
@@ -76,7 +72,6 @@ input, select, textarea {
     scrollbar-width: none;
   }
   nav::-webkit-scrollbar { display: none; }
-  
   nav a {
     font-size: 0.8rem !important;
     padding: 8px 16px !important;
@@ -100,18 +95,57 @@ input, select, textarea {
     flex-shrink: 0;
     border: none !important;
   }
+}
+
+/* ==========================================
+   PERBAIKAN: TOMBOL MODE ADMIN (HANYA DI TENTANG)
+   ========================================== */
+
+/* Sembunyikan secara default */
+.bar-admin {
+  display: none !important; 
+}
+
+/* Tampilkan HANYA saat berada di section #tentang DAN sedang login admin */
+body.isadmin:has(#tentang:not([hidden])) .bar-admin {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
   
-  /* Memperbaiki bar mode admin agar tidak menutupi menu */
-  .bar-admin {
-    position: fixed !important;
-    top: 10px !important;
-    left: 10px !important;
-    right: 10px !important;
-    border-radius: 15px !important;
-    z-index: 10000 !important;
-    justify-content: center !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-  }
+  /* Posisi melayang di pojok kanan bawah (di atas menu navigasi) */
+  position: fixed !important;
+  bottom: 85px !important; 
+  right: 15px !important;
+  
+  /* Desain kalem, kaca transparan */
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: #475569 !important;
+  padding: 6px 12px !important;
+  border-radius: 50px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+  z-index: 9999 !important;
+  font-size: 11px !important;
+}
+
+/* Menyesuaikan tulisan "Mode admin" */
+body.isadmin:has(#tentang:not([hidden])) .bar-admin b {
+  font-weight: 600 !important;
+  color: #64748b !important;
+}
+
+/* Menyesuaikan tombol "Ekspor cadangan" di dalamnya */
+body.isadmin:has(#tentang:not([hidden])) .bar-admin button {
+  padding: 5px 12px !important;
+  font-size: 11px !important;
+  border-radius: 20px !important;
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
 }
 
 /* 6. TOMBOL & TABEL */
