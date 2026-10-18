@@ -1,5 +1,6 @@
 /* ==========================================
    TEMA: ULTIMATE FLOATING GLASSMORPHISM MENU
+   (DENGAN IKON FLAT COLORFUL)
    ========================================== */
 
 /* 1. LATAR BELAKANG & TEKS UTAMA */
@@ -8,7 +9,7 @@ body {
   color: #0f172a !important;
   min-height: 100vh;
   background-attachment: fixed;
-  padding-bottom: 120px !important; /* Jarak aman agar konten bawah tidak tertutup menu */
+  transition: padding 0.3s ease;
 }
 
 /* Perbaikan Teks Tenggelam */
@@ -34,39 +35,40 @@ input, select, textarea { background: rgba(255, 255, 255, 0.9) !important; borde
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
   color: #1e293b !important;
 }
-.kc .kv, .wv2 b { color: #0284c7 !important; }
 
 /* ==========================================
-   4. NAVIGASI KAPSUL MELAYANG (SEPERTI GAMBAR)
+   4A. TAMPILAN MENU UNTUK HP (MOBILE)
    ========================================== */
 @media screen and (max-width: 768px) {
+  body { padding-bottom: 90px !important; }
+
   nav {
     position: fixed !important;
     bottom: 15px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important; /* Memaksa menu ke tengah */
-    width: max-content !important;
-    max-width: 95vw !important;
+    left: 10px !important;
+    right: 10px !important;
+    top: auto !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: 68px !important; 
     
-    /* Desain Kaca Biru Menyala */
-    background: linear-gradient(90deg, rgba(0, 40, 120, 0.75) 0%, rgba(0, 150, 200, 0.75) 100%) !important;
-    backdrop-filter: blur(25px) !important;
-    -webkit-backdrop-filter: blur(25px) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
-    box-shadow: 0 10px 40px rgba(0, 50, 150, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.1) !important;
-    
+    background: linear-gradient(90deg, rgba(0, 40, 120, 0.9) 0%, rgba(0, 150, 200, 0.9) 100%) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
     border-radius: 50px !important;
-    padding: 8px 12px !important;
+    padding: 6px 10px !important;
+    
     display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
     overflow-x: auto !important;
     scrollbar-width: none;
     z-index: 9999 !important;
   }
   nav::-webkit-scrollbar { display: none; }
 
-  /* Gaya Teks & Ikon di Dalam Menu */
+  /* Desain Ikon & Teks di HP */
   nav a, nav button {
     display: flex !important;
     flex-direction: column !important;
@@ -74,42 +76,126 @@ input, select, textarea { background: rgba(255, 255, 255, 0.9) !important; borde
     justify-content: center !important;
     gap: 4px !important;
     color: #e0f2fe !important;
-    font-size: 10px !important;
+    font-size: 9.5px !important;
     font-weight: 600 !important;
     padding: 8px 12px !important;
-    margin: 0 !important;
-    border-radius: 15px !important;
-    text-decoration: none !important;
+    border-radius: 20px !important;
     background: transparent !important;
     border: none !important;
-    box-shadow: none !important;
     white-space: nowrap !important;
-    transition: all 0.3s ease !important;
+    min-width: 65px !important;
+    
+    /* Properti untuk Ikon SVG */
+    background-repeat: no-repeat !important;
+    background-position: center 5px !important;
+    background-size: 22px 22px !important;
+    padding-top: 32px !important; 
   }
 
-  /* MEMBUAT IKON EMOSI (Karena tidak ada gambar) */
-  nav a::before, nav button::before { font-size: 18px !important; line-height: 1 !important; }
-  nav a[href="#skp"]::before { content: "🏠"; }
-  nav a[href="#laporan"]::before { content: "📝"; }
-  nav a[href="#capaian"]::before { content: "📊"; }
-  nav a[href="#kelompok"]::before { content: "👥"; }
-  nav a[href="#galeri"]::before { content: "🖼️"; }
-  nav a[href="#edu"]::before { content: "📚"; }
-  nav a[href="#ren"]::before { content: "📅"; }
-  nav a[href="#tentang"]::before { content: "ℹ️"; }
-  nav button::before { content: "👤"; } /* Ikon Admin */
+  /* Ikon SVG untuk HP */
+  nav a[href="#skp"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234ade80"%3E%3Cpath d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"/%3E%3Cpath d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"/%3E%3C/svg%3E') !important; }
+  
+  nav a[href="#laporan"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233b82f6"%3E%3Cpath d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/%3E%3C/svg%3E') !important; }
+  
+  nav a[href="#capaian"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f59e0b"%3E%3Cpath d="M11 2v20c-5.07-.5-9-4.79-9-9.92s3.93-9.42 9-9.92zm2 0v9h9c-.5-4.72-4.28-8.5-9-9zm0 11v9c4.72-.5 8.5-4.28 9-9h-9z"/%3E%3C/svg%3E') !important; }
+  
+  nav a[href="#kelompok"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ec4899"%3E%3Cpath d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/%3E%3C/svg%3E') !important; }
+  
+  nav a[href="#galeri"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230ea5e9"%3E%3Cpath d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/%3E%3C/svg%3E') !important; }
+  
+  nav a[href="#edu"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f97316"%3E%3Cpath d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/%3E%3C/svg%3E') !important; }
+  
+  nav a[href="#ren"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2314b8a6"%3E%3Cpath d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/%3E%3C/svg%3E') !important; }
+  
+  nav a[href="#tentang"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%238b5cf6"%3E%3Cpath d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/%3E%3C/svg%3E') !important; }
+  
+  nav button { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23cbd5e1"%3E%3Cpath d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/%3E%3C/svg%3E') !important; }
 
-  /* Efek Saat Menu Aktif (Menyala) */
   nav a.on {
-    background: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
     color: #ffffff !important;
-    text-shadow: 0 0 10px rgba(255,255,255,0.8) !important;
     transform: translateY(-2px) !important;
+    /* Menjaga ikon tetap terlihat saat aktif */
+    background-repeat: no-repeat !important;
+    background-position: center 5px !important;
+    background-size: 22px 22px !important;
   }
 }
 
 /* ==========================================
-   5. MODE ADMIN (HANYA DI TENTANG, POJOK BAWAH)
+   4B. TAMPILAN MENU UNTUK LAPTOP/PC (DESKTOP)
+   ========================================== */
+@media screen and (min-width: 769px) {
+  body { padding-left: 230px !important; } 
+
+  nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 210px !important;
+    height: 100vh !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 5px 0 20px rgba(0,0,0,0.05) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 30px 15px !important;
+    border-radius: 0 30px 30px 0 !important;
+    z-index: 9999 !important;
+    gap: 8px !important;
+  }
+
+  nav a, nav button {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+    color: #475569 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 12px 20px 12px 50px !important; /* Padding kiri untuk ikon */
+    border-radius: 15px !important;
+    background: transparent !important;
+    border: none !important;
+    width: 100% !important;
+    text-align: left !important;
+    
+    /* Properti Ikon Desktop */
+    background-repeat: no-repeat !important;
+    background-position: 15px center !important;
+    background-size: 22px 22px !important;
+  }
+
+  /* Ikon SVG untuk Desktop (Sama, tapi posisi di kiri) */
+  nav a[href="#skp"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234ade80"%3E%3Cpath d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"/%3E%3Cpath d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"/%3E%3C/svg%3E') !important; }
+  nav a[href="#laporan"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233b82f6"%3E%3Cpath d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/%3E%3C/svg%3E') !important; }
+  nav a[href="#capaian"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f59e0b"%3E%3Cpath d="M11 2v20c-5.07-.5-9-4.79-9-9.92s3.93-9.42 9-9.92zm2 0v9h9c-.5-4.72-4.28-8.5-9-9zm0 11v9c4.72-.5 8.5-4.28 9-9h-9z"/%3E%3C/svg%3E') !important; }
+  nav a[href="#kelompok"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ec4899"%3E%3Cpath d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/%3E%3C/svg%3E') !important; }
+  nav a[href="#galeri"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230ea5e9"%3E%3Cpath d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/%3E%3C/svg%3E') !important; }
+  nav a[href="#edu"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f97316"%3E%3Cpath d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/%3E%3C/svg%3E') !important; }
+  nav a[href="#ren"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2314b8a6"%3E%3Cpath d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/%3E%3C/svg%3E') !important; }
+  nav a[href="#tentang"] { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%238b5cf6"%3E%3Cpath d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/%3E%3C/svg%3E') !important; }
+  nav button { background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23475569"%3E%3Cpath d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/%3E%3C/svg%3E') !important; }
+
+  nav a:hover { background-color: rgba(14, 165, 233, 0.08) !important; }
+  nav a.on {
+    background-color: rgba(14, 165, 233, 0.15) !important;
+    color: #0284c7 !important;
+    box-shadow: none !important;
+    /* Menjaga ikon tetap di kiri saat aktif */
+    background-repeat: no-repeat !important;
+    background-position: 15px center !important;
+    background-size: 22px 22px !important;
+  }
+  
+  nav button { margin-top: auto !important; background-color: #e2e8f0 !important; color: #0f172a !important; }
+}
+
+/* ==========================================
+   5. MODE ADMIN (HANYA DI TENTANG)
    ========================================== */
 .bar-admin { display: none !important; }
 body.isadmin:has(#tentang:not([hidden])) .bar-admin {
@@ -117,11 +203,10 @@ body.isadmin:has(#tentang:not([hidden])) .bar-admin {
   align-items: center !important;
   gap: 8px !important;
   position: fixed !important;
-  bottom: 100px !important; 
+  bottom: 90px !important; 
   right: 15px !important;
-  background: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
   border: 1px solid rgba(0,0,0,0.1) !important;
   color: #475569 !important;
   padding: 6px 12px !important;
@@ -130,8 +215,7 @@ body.isadmin:has(#tentang:not([hidden])) .bar-admin {
   z-index: 9999 !important;
   font-size: 11px !important;
 }
-body.isadmin:has(#tentang:not([hidden])) .bar-admin b { font-weight: 600 !important; color: #64748b !important; }
-body.isadmin:has(#tentang:not([hidden])) .bar-admin button { padding: 5px 12px !important; font-size: 11px !important; border-radius: 20px !important; background: #e2e8f0 !important; color: #0f172a !important; border: none !important; box-shadow: none !important; }
+body.isadmin:has(#tentang:not([hidden])) .bar-admin button { padding: 5px 12px !important; font-size: 11px !important; border-radius: 20px !important; background: #e2e8f0 !important; color: #0f172a !important; border: none !important; }
 
 /* 6. TOMBOL & TABEL */
 button, .btn { background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%) !important; color: #fff !important; border: none !important; border-radius: 50px !important; padding: 10px 24px !important; font-weight: 700 !important; box-shadow: 0 6px 15px rgba(14, 165, 233, 0.3) !important; }
