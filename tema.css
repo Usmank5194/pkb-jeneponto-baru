@@ -1,5 +1,5 @@
 /* ==========================================
-   TEMA: LIGHT GLASSMORPHISM & ANDROID APP STYLE
+   TEMA: ULTIMATE FLOATING GLASSMORPHISM MENU
    ========================================== */
 
 /* 1. LATAR BELAKANG & TEKS UTAMA */
@@ -8,37 +8,23 @@ body {
   color: #0f172a !important;
   min-height: 100vh;
   background-attachment: fixed;
-  padding-bottom: 100px !important;
+  padding-bottom: 120px !important; /* Jarak aman agar konten bawah tidak tertutup menu */
 }
 
-/* 2. MEMPERBAIKI TEKS YANG TENGGELAM */
-.hero p, #hText { 
-  color: #ffffff !important; 
-  text-shadow: 0 2px 5px rgba(0,0,0,0.5) !important; 
-  font-weight: 600 !important;
-}
-.hero .stats > div { 
-  background: rgba(255, 255, 255, 0.25) !important; 
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  backdrop-filter: blur(5px);
-}
+/* Perbaikan Teks Tenggelam */
+.hero p, #hText { color: #ffffff !important; text-shadow: 0 2px 5px rgba(0,0,0,0.5) !important; font-weight: 600 !important; }
+.hero .stats > div { background: rgba(255, 255, 255, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.5) !important; backdrop-filter: blur(5px); }
 .hero .stats b { color: #facc15 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; }
 .hero .stats div span, .hero .stats div { color: #ffffff !important; font-weight: 600; }
 h1, h2, h3, label { color: #0f172a !important; }
 .sub, .meta { color: #475569 !important; font-weight: 500; }
 
-/* 3. MEMPERBAIKI DROPDOWN SKP YANG HITAM */
+/* 2. MEMPERBAIKI DROPDOWN SKP YANG HITAM */
 :root { color-scheme: light !important; }
 select, option, optgroup { background-color: #ffffff !important; color: #0f172a !important; }
-input, select, textarea {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid #7dd3fc !important;
-  color: #0f172a !important;
-  border-radius: 12px !important;
-  padding: 10px 15px !important;
-}
+input, select, textarea { background: rgba(255, 255, 255, 0.9) !important; border: 1px solid #7dd3fc !important; color: #0f172a !important; border-radius: 12px !important; padding: 10px 15px !important; }
 
-/* 4. EFEK KARTU KACA (GLASSMORPHISM) */
+/* 3. EFEK KARTU KACA (GLASSMORPHISM) */
 .card, .kc, .skp, .wv2 div, .ab, .admin, .fbar {
   background: rgba(255, 255, 255, 0.65) !important;
   backdrop-filter: blur(15px) !important;
@@ -48,76 +34,91 @@ input, select, textarea {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
   color: #1e293b !important;
 }
-.kc .kv, .wv2 b { color: #0284c7 !important; text-shadow: 0 2px 10px rgba(2, 132, 199, 0.2); }
+.kc .kv, .wv2 b { color: #0284c7 !important; }
 
-/* 5. UBAH NAVIGASI ATAS JADI MENU BAWAH */
+/* ==========================================
+   4. NAVIGASI KAPSUL MELAYANG (SEPERTI GAMBAR)
+   ========================================== */
 @media screen and (max-width: 768px) {
   nav {
     position: fixed !important;
     bottom: 15px !important;
-    left: 10px !important;
-    right: 10px !important;
-    top: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important; /* Memaksa menu ke tengah */
+    width: max-content !important;
+    max-width: 95vw !important;
+    
+    /* Desain Kaca Biru Menyala */
+    background: linear-gradient(90deg, rgba(0, 40, 120, 0.75) 0%, rgba(0, 150, 200, 0.75) 100%) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 10px 40px rgba(0, 50, 150, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.1) !important;
+    
     border-radius: 50px !important;
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
-    border: 1px solid rgba(255,255,255,0.8) !important;
-    padding: 10px 15px !important;
-    z-index: 9999 !important;
+    padding: 8px 12px !important;
     display: flex !important;
-    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 6px !important;
     overflow-x: auto !important;
     scrollbar-width: none;
+    z-index: 9999 !important;
   }
   nav::-webkit-scrollbar { display: none; }
-  nav a {
-    font-size: 0.8rem !important;
-    padding: 8px 16px !important;
-    margin-right: 8px !important;
-    border-radius: 30px !important;
-    white-space: nowrap !important;
-    color: #475569 !important;
-  }
-  nav a.on {
-    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4) !important;
-  }
-  nav button {
-    border-radius: 30px !important;
-    background: #1e293b !important;
-    color: #ffffff !important;
-    padding: 8px 16px !important;
-    font-size: 0.8rem !important;
-    margin-left: auto !important;
-    flex-shrink: 0;
+
+  /* Gaya Teks & Ikon di Dalam Menu */
+  nav a, nav button {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    color: #e0f2fe !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    border-radius: 15px !important;
+    text-decoration: none !important;
+    background: transparent !important;
     border: none !important;
+    box-shadow: none !important;
+    white-space: nowrap !important;
+    transition: all 0.3s ease !important;
+  }
+
+  /* MEMBUAT IKON EMOSI (Karena tidak ada gambar) */
+  nav a::before, nav button::before { font-size: 18px !important; line-height: 1 !important; }
+  nav a[href="#skp"]::before { content: "🏠"; }
+  nav a[href="#laporan"]::before { content: "📝"; }
+  nav a[href="#capaian"]::before { content: "📊"; }
+  nav a[href="#kelompok"]::before { content: "👥"; }
+  nav a[href="#galeri"]::before { content: "🖼️"; }
+  nav a[href="#edu"]::before { content: "📚"; }
+  nav a[href="#ren"]::before { content: "📅"; }
+  nav a[href="#tentang"]::before { content: "ℹ️"; }
+  nav button::before { content: "👤"; } /* Ikon Admin */
+
+  /* Efek Saat Menu Aktif (Menyala) */
+  nav a.on {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(255,255,255,0.8) !important;
+    transform: translateY(-2px) !important;
   }
 }
 
 /* ==========================================
-   PERBAIKAN: TOMBOL MODE ADMIN (HANYA DI TENTANG)
+   5. MODE ADMIN (HANYA DI TENTANG, POJOK BAWAH)
    ========================================== */
-
-/* Sembunyikan secara default */
-.bar-admin {
-  display: none !important; 
-}
-
-/* Tampilkan HANYA saat berada di section #tentang DAN sedang login admin */
+.bar-admin { display: none !important; }
 body.isadmin:has(#tentang:not([hidden])) .bar-admin {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  
-  /* Posisi melayang di pojok kanan bawah (di atas menu navigasi) */
   position: fixed !important;
-  bottom: 85px !important; 
+  bottom: 100px !important; 
   right: 15px !important;
-  
-  /* Desain kalem, kaca transparan */
   background: rgba(255, 255, 255, 0.85) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
@@ -129,35 +130,11 @@ body.isadmin:has(#tentang:not([hidden])) .bar-admin {
   z-index: 9999 !important;
   font-size: 11px !important;
 }
-
-/* Menyesuaikan tulisan "Mode admin" */
-body.isadmin:has(#tentang:not([hidden])) .bar-admin b {
-  font-weight: 600 !important;
-  color: #64748b !important;
-}
-
-/* Menyesuaikan tombol "Ekspor cadangan" di dalamnya */
-body.isadmin:has(#tentang:not([hidden])) .bar-admin button {
-  padding: 5px 12px !important;
-  font-size: 11px !important;
-  border-radius: 20px !important;
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-weight: 600 !important;
-}
+body.isadmin:has(#tentang:not([hidden])) .bar-admin b { font-weight: 600 !important; color: #64748b !important; }
+body.isadmin:has(#tentang:not([hidden])) .bar-admin button { padding: 5px 12px !important; font-size: 11px !important; border-radius: 20px !important; background: #e2e8f0 !important; color: #0f172a !important; border: none !important; box-shadow: none !important; }
 
 /* 6. TOMBOL & TABEL */
-button, .btn {
-  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%) !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: 50px !important;
-  padding: 10px 24px !important;
-  font-weight: 700 !important;
-  box-shadow: 0 6px 15px rgba(14, 165, 233, 0.3) !important;
-}
+button, .btn { background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%) !important; color: #fff !important; border: none !important; border-radius: 50px !important; padding: 10px 24px !important; font-weight: 700 !important; box-shadow: 0 6px 15px rgba(14, 165, 233, 0.3) !important; }
 button.alt, .btn.alt { background: #ffffff !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; }
 button.red { background: linear-gradient(135deg, #ef4444 0%, #f43f5e 100%) !important; }
 
