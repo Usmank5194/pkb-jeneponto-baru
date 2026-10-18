@@ -461,7 +461,7 @@ function render(){
   ${(l.fotos||[]).length?`<div class="lf">${l.fotos.map(id=>{const f=D.foto.find(x=>x.id==id);return f?`<img src="${f.src}" alt="${esc(f.cap)}" loading="lazy">`:''}).join('')}</div>`:''}
   ${l.bukti?`<a href="${esc(l.bukti)}" rel="noopener">Bukti dukung</a>`:''}
   ${l.pejabat?`<p class="meta">Disetujui ${esc(l.tglSetuju)} oleh ${esc(l.pejabat)}</p>`:''}
- <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pub?`<button class="alt" onclick="promptIdentitas('${l.id}','word')">📄 Unduh Word</button> <button class="alt" onclick="promptIdentitas('${l.id}','pdf')">📥 Unduh PDF</button> <button class="alt" onclick="cetakLap('${l.id}')">🖨️ Cetak</button>`:''}<span class="onlyadmin"><button class="alt" onclick="st('${l.id}','${pub?'Draf':'Disetujui'}')">${pub?'Sembunyikan':'Terbitkan'}</button> <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></span></div></article>`}).join(''):`<div class="empty">${FS?'Belum ada laporan untuk butir ini.':'Belum ada laporan yang terbit.'}</div>`;
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pub?`<button class="alt" onclick="promptIdentitas('${l.id}','word')">📄 Unduh Word</button> <button class="alt" onclick="promptIdentitas('${l.id}','pdf')">📥 Unduh PDF</button> <button class="alt" onclick="cetakLap('${l.id}')">🖨️ Cetak</button>`:''}<span class="onlyadmin"><button class="alt" onclick="st('${l.id}','${pub?'Draf':'Disetujui'}')">${pub?'Sembunyikan':'Terbitkan'}</button> <button class="alt" style="background:#f59e0b; color:#fff" onclick="editLap('${l.id}')">✏️ Edit</button> <button class="red" onclick="hapusLap('${l.id}')">Hapus</button></span></div></article>`}).join(''):`<div class="empty">${FS?'Belum ada laporan untuk butir ini.':'Belum ada laporan yang terbit.'}</div>`;
  const pf=D.foto.find(f=>f.id=='profil');if(pf)$('ph').src=pf.src;const G=D.foto.filter(f=>!['profil','judul','tentang','prinsip'].includes(f.id)&&!f.ban);
  $('galList').innerHTML=G.length?G.map(f=>`<figure><img src="${f.src}" alt="${esc(f.cap)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption>${isA()?`<button class="del" onclick="hapusFoto('${f.id}')">Hapus</button>`:''}</figure>`).join(''):'<div class="empty">Belum ada foto.</div>';
  $('lPick').innerHTML=G.length?G.map(f=>`<label><input type="checkbox" ${LF.has(f.id)?'checked':''} onchange="this.checked?LF.add('${f.id}'):LF.delete('${f.id}')"><img src="${f.src}" alt="${esc(f.cap)}"></label>`).join(''):'<span class="meta">Belum ada foto di Galeri.</span>';
@@ -478,8 +478,10 @@ function delG(k,id){if(confirm('Hapus data ini?'))db.collection(k).doc(id).delet
 $('loginBtn').onclick=()=>{if(!au){alert('Layanan belum termuat. Periksa koneksi lalu muat ulang halaman.');return}if(au.currentUser){au.signOut();return}$('dlg').showModal()};
 $('lgForm').onsubmit=e=>{e.preventDefault();$('lgErr').textContent='';au.signInWithEmailAndPassword($('lgEm').value.trim(),$('lgPw').value).then(()=>{$('dlg').close();$('lgPw').value=''}).catch(()=>$('lgErr').textContent='Email atau sandi salah.')};
 async function setProfil(i){if(!i.files[0])return;db.collection('foto').doc('profil').set({t:0,cap:'Foto profil',src:await kompres(i.files[0])}).catch(werr)}
+let editId = null;
+
 function saveLap(pub){
-  db.collection('lap').add({
+  const data = {
     t: Date.now(),
     skp: $('lSkp').value,
     judul: $('lJudul').value,
@@ -493,8 +495,45 @@ function saveLap(pub){
     wil: $('lWil').value,
     fotos: [...LF],
     status: pub ? 'Disetujui' : 'Draf'
-  }).catch(werr);
-  $('lapForm').reset(); LF.clear(); render();
+  };
+
+  if (editId) {
+    db.collection('lap').doc(editId).update(data).then(() => {
+      alert('Laporan berhasil diperbarui!');
+      editId = null;
+      $('lapForm').reset(); LF.clear(); render();
+      document.querySelector('#lapForm button[type="submit"]').textContent = 'Terbitkan';
+    }).catch(werr);
+  } else {
+    db.collection('lap').add(data).catch(werr);
+    $('lapForm').reset(); LF.clear(); render();
+  }
+}
+
+function editLap(id) {
+  const lap = D.lap.find(l => l.id === id);
+  if (!lap) return;
+  
+  editId = id;
+  
+  $('lSkp').value = lap.skp;
+  $('lJudul').value = lap.judul;
+  $('lTgl').value = lap.tgl;
+  $('lWaktu').value = lap.waktu || '';
+  $('lPeserta').value = lap.peserta || '';
+  $('lLok').value = lap.lok;
+  $('lJml').value = lap.jml;
+  $('lIsi').value = lap.isi;
+  $('lBukti').value = lap.bukti || '';
+  $('lWil').value = lap.wil || '';
+  
+  LF.clear();
+  if (lap.fotos) lap.fotos.forEach(fotoId => LF.add(fotoId));
+  
+  document.querySelector('#lapForm button[type="submit"]').textContent = 'Update Laporan';
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  render();
 }
 $('lapForm').onsubmit=e=>{e.preventDefault();saveLap(true)};
 function st(id,s){db.collection('lap').doc(id).update({status:s}).catch(werr)}
