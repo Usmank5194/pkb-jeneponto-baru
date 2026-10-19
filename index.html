@@ -694,4 +694,29 @@ document.addEventListener('click',e=>{const im=e.target.closest&&e.target.closes
  const box=im.closest('.lf,#galList,.bn');LB.g=[...box.querySelectorAll(box.classList.contains('bn')?'img.fg':'img')];LB.i=LB.g.indexOf(im);lbShow();$('lb').showModal()});
 addEventListener('hashchange',go);go();
 loadFb().then(ok=>{if(ok)startFb();else{$('ld').hidden=false;$('ld').textContent='Layanan data gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.'}});
+<!-- ========================================== -->
+<!-- TOMBOL & DIALOG SIGAN AI -->
+<!-- ========================================== -->
+<button class="fab-ai" onclick="$('aiDlg').showModal()">
+  <span>✨</span> Sigan Ai
+</button>
+
+<dialog id="aiDlg" style="width: 90vw; max-width: 400px; height: 80vh; display: flex; flex-direction: column; padding: 0; border-radius: 20px; overflow: hidden;">
+  <div style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <b style="font-size: 16px;">✨ Sigan Ai</b>
+    <button onclick="$('aiDlg').close()" style="background: transparent; color: white; border: none; font-size: 24px; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+  </div>
+  
+  <div id="aiChatBox" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+    <div style="background: #e0f2fe; color: #0f172a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 14px;">
+      Halo Bosku! Saya Sigan Ai. Ada yang bisa saya bantu untuk buat draf laporan atau notulensi hari ini?
+    </div>
+  </div>
+
+  <div style="padding: 10px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;">
+    <input id="aiInput" placeholder="Ketik instruksi laporan..." style="flex: 1; margin: 0; padding: 10px 15px; border-radius: 20px; border: 1px solid #cbd5e1; font-size: 14px;" onkeypress="if(event.key==='Enter') kirimAI()">
+    <button onclick="kirimAI()" style="background: #0ea5e9; color: white; border: none; border-radius: 50%; width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">➤</button>
+  </div>
+</dialog>
+<!-- ========================================== -->
 </script></body></html>
