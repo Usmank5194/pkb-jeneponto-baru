@@ -716,7 +716,52 @@ async function kirimAI() {
   const loadingId = 'load_' + Date.now();
   chatBox.innerHTML += `<div id="${loadingId}" style="background: #e0f2fe; color: #0f172a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 14px;">Sigan Ai sedang mengetik...</div>`;
   chatBox.scrollTop = chatBox.scrollHeight;
-// --- FUNGSI SINKRONISASI LAPORAN DENGAN SIGAN AI ---
+
+  try {
+    // Kita ganti modelnya ke gemini-pro yang paling stabil
+    // Panggil API Google Gemini dengan Header
+const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`, {
+  method: 'POST',
+  headers: { 
+    'Content-Type': 'application/json',
+    'x-goog-api-key': GEMINI_API_KEY 
+  },
+  body: JSON.stringify({
+    contents: [{
+      parts: [{
+        text: "Kamu adalah Sigan Ai, asisten pintar untuk Penyuluh KB. Tugasmu membantu membuatkan draf laporan kegiatan, notulensi, atau isi form berdasarkan instruksi user. Jawab dengan bahasa Indonesia yang formal dan rapi. Instruksi user: " + pesan
+      }]
+    }]
+  })
+});
+
+    // Kita bongkar respon aslinya
+    const data = await response.json();
+    let balasanAI = "";
+    
+    if (response.ok) {
+      // Kalau sukses
+      if (data.candidates && data.candidates[0].content.parts[0].text) {
+        balasanAI = data.candidates[0].content.parts[0].text;
+      } else {
+        balasanAI = "Respon Google aneh: " + JSON.stringify(data);
+      }
+    } else {
+      // Kalau Google menolak (Error)
+      balasanAI = "❌ Error dari Google: " + (data.error.message || JSON.stringify(data));
+    }
+
+    document.getElementById(loadingId).remove();
+    const formatBalasan = balasanAI.replace(/\n/g, '<br>');
+    chatBox.innerHTML += `<div style="background: #e0f2fe; color: #0f172a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 14px;">${formatBalasan}</div>`;
+    
+  } catch (error) {
+    document.getElementById(loadingId).remove();
+    chatBox.innerHTML += `<div style="background: #fee2e2; color: #991b1b; padding: 10px 15px; border-radius: 15px; font-size: 14px;">❌ Gagal Jaringan: ${error.message}</div>`;
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+  // --- FUNGSI SINKRONISASI LAPORAN DENGAN SIGAN AI ---
 async function buatLaporanAI() {
   // 1. Ambil data dari form
   const skpSelect = document.getElementById('lSkp');
@@ -776,50 +821,6 @@ async function buatLaporanAI() {
     btn.innerHTML = originalText;
     btn.disabled = false;
   }
-}
-  try {
-    // Kita ganti modelnya ke gemini-pro yang paling stabil
-    // Panggil API Google Gemini dengan Header
-const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`, {
-  method: 'POST',
-  headers: { 
-    'Content-Type': 'application/json',
-    'x-goog-api-key': GEMINI_API_KEY 
-  },
-  body: JSON.stringify({
-    contents: [{
-      parts: [{
-        text: "Kamu adalah Sigan Ai, asisten pintar untuk Penyuluh KB. Tugasmu membantu membuatkan draf laporan kegiatan, notulensi, atau isi form berdasarkan instruksi user. Jawab dengan bahasa Indonesia yang formal dan rapi. Instruksi user: " + pesan
-      }]
-    }]
-  })
-});
-
-    // Kita bongkar respon aslinya
-    const data = await response.json();
-    let balasanAI = "";
-    
-    if (response.ok) {
-      // Kalau sukses
-      if (data.candidates && data.candidates[0].content.parts[0].text) {
-        balasanAI = data.candidates[0].content.parts[0].text;
-      } else {
-        balasanAI = "Respon Google aneh: " + JSON.stringify(data);
-      }
-    } else {
-      // Kalau Google menolak (Error)
-      balasanAI = "❌ Error dari Google: " + (data.error.message || JSON.stringify(data));
-    }
-
-    document.getElementById(loadingId).remove();
-    const formatBalasan = balasanAI.replace(/\n/g, '<br>');
-    chatBox.innerHTML += `<div style="background: #e0f2fe; color: #0f172a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 14px;">${formatBalasan}</div>`;
-    
-  } catch (error) {
-    document.getElementById(loadingId).remove();
-    chatBox.innerHTML += `<div style="background: #fee2e2; color: #991b1b; padding: 10px 15px; border-radius: 15px; font-size: 14px;">❌ Gagal Jaringan: ${error.message}</div>`;
-  }
-  chatBox.scrollTop = chatBox.scrollHeight;
 }
   </script>
     <!-- ========================================== -->
