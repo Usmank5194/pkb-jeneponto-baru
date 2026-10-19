@@ -250,3 +250,8 @@ tr.tot td { background: #e0f2fe !important; color: #0284c7 !important; }
 }
 .fab-ai:hover { transform: scale(1.05); }
 .fab-ai span { font-size: 18px; }
+/* Mengatur tampilan kotak chat HANYA saat dibuka */
+#aiDlg[open] {
+  display: flex !important;
+  flex-direction: column !important;
+}
