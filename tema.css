@@ -226,3 +226,27 @@ table { background: rgba(255, 255, 255, 0.8) !important; border-radius: 15px; bo
 th { background: rgba(186, 230, 253, 0.8) !important; color: #0f172a !important; }
 td { border-bottom: 1px solid rgba(0,0,0,0.05) !important; color: #1e293b !important; }
 tr.tot td { background: #e0f2fe !important; color: #0284c7 !important; }
+/* ==========================================
+   DESAIN TOMBOL SIGAN AI
+   ========================================== */
+.fab-ai {
+  position: fixed;
+  bottom: 90px; /* Posisi melayang di atas menu bawah */
+  right: 20px;
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); /* Warna ungu-pink */
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+  cursor: pointer;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s;
+}
+.fab-ai:hover { transform: scale(1.05); }
+.fab-ai span { font-size: 18px; }
