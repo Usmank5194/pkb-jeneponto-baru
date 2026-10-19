@@ -229,7 +229,9 @@ tr.tot td{font-weight:800;background:var(--mist)}
   <label>Wilayah binaan</label><select id="lWil"></select>
   <label>Tempat / Lokasi *</label><input id="lLok" required>
   <label>Isi Laporan / Hasil Pelaksanaan *</label><textarea id="lIsi" rows="4" required></textarea>
-  <label>Link bukti dukung (opsional)</label><input id="lBukti" type="url" placeholder="https://">
+  <label>Link bukti dukung (opsional)</label><button type="button" id="btnGenLap" onclick="buatLaporanAI()" style="width:100%; margin-bottom:8px; background:linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); font-size:12px; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);">
+  ✨ Buat Isi Laporan dengan Sigan Ai
+</button><input id="lBukti" type="url" placeholder="https://">
   <label>Dokumentasi dari Galeri (pilih satu atau lebih)</label><div class="pick" id="lPick"></div>
   <button type="submit" id="btnSubmitLap">Terbitkan</button> 
   <button type="button" class="alt" onclick="if($('lapForm').reportValidity())saveLap(false)">Simpan tersembunyi</button>
@@ -714,7 +716,67 @@ async function kirimAI() {
   const loadingId = 'load_' + Date.now();
   chatBox.innerHTML += `<div id="${loadingId}" style="background: #e0f2fe; color: #0f172a; padding: 10px 15px; border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 14px;">Sigan Ai sedang mengetik...</div>`;
   chatBox.scrollTop = chatBox.scrollHeight;
+// --- FUNGSI SINKRONISASI LAPORAN DENGAN SIGAN AI ---
+async function buatLaporanAI() {
+  // 1. Ambil data dari form
+  const skpSelect = document.getElementById('lSkp');
+  const namaSkp = skpSelect.options[skpSelect.selectedIndex].text;
+  const judul = document.getElementById('lJudul').value.trim();
+  const tgl = document.getElementById('lTgl').value;
+  const waktu = document.getElementById('lWaktu').value;
+  const peserta = document.getElementById('lPeserta').value;
 
+  // 2. Validasi (minimal Judul harus diisi)
+  if (!judul) {
+    alert("Bosku, isi dulu 'Judul Laporan' agar Sigan Ai tahu mau buat laporan apa!");
+    return;
+  }
+
+  // 3. Ubah tombol jadi loading
+  const btn = document.getElementById('btnGenLap');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = "⏳ Sigan Ai sedang menulis laporan...";
+  btn.disabled = true;
+
+  // 4. Susun perintah (Prompt) khusus untuk laporan
+  const promptLaporan = `Buatkan isi laporan kegiatan formal untuk Penyuluh KB dengan detail berikut:
+  - Butir SKP: ${namaSkp}
+  - Judul Laporan: ${judul}
+  - Tanggal: ${tgl}
+  - Waktu: ${waktu}
+  - Peserta: ${peserta}
+
+  Tolong buat dalam format paragraf dan poin-poin yang rapi. Awali dengan paragraf tujuan kegiatan, jelaskan rangkaian kegiatan (bisa berupa poin), lalu akhiri dengan paragraf 'Hasil Pelaksanaan'. 
+  Jangan pakai kata pengantar (seperti 'Baik, ini laporannya'), langsung berikan isi laporannya saja.`;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-goog-api-key': GEMINI_API_KEY 
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: promptLaporan }] }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
+      // 5. Masukkan hasil AI ke dalam textarea
+      document.getElementById('lIsi').value = data.candidates[0].content.parts[0].text;
+    } else {
+      alert("Gagal: " + (data.error ? data.error.message : "Error tidak diketahui"));
+    }
+  } catch (error) {
+    alert("Gagal terhubung. Periksa sinyal internet Bosku.");
+  } finally {
+    // 6. Kembalikan tombol ke semula
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
   try {
     // Kita ganti modelnya ke gemini-pro yang paling stabil
     // Panggil API Google Gemini dengan Header
