@@ -774,43 +774,47 @@ const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/m
 }
   // --- FUNGSI SINKRONISASI LAPORAN DENGAN SIGAN AI ---
 async function buatLaporanAI() {
-  // 1. Ambil data dari form
   const skpSelect = document.getElementById('lSkp');
   const namaSkp = skpSelect.options[skpSelect.selectedIndex].text;
   const judul = document.getElementById('lJudul').value.trim();
   const tgl = document.getElementById('lTgl').value;
   const waktu = document.getElementById('lWaktu').value;
   const peserta = document.getElementById('lPeserta').value;
+  
+  // 1. TAMBAHKAN KODE UNTUK MENGAMBIL WILAYAH BINAAN DARI DROPDOWN
+  const wilSelect = document.getElementById('lWil');
+  const wilayah = wilSelect.options[wilSelect.selectedIndex] ? wilSelect.options[wilSelect.selectedIndex].text : '';
 
-  // 2. Validasi (minimal Judul harus diisi)
   if (!judul) {
     alert("Bosku, isi dulu 'Judul Laporan' agar Sigan Ai tahu mau buat laporan apa!");
     return;
   }
 
-  // 3. Ubah tombol jadi loading
   const btn = document.getElementById('btnGenLap');
   const originalText = btn.innerHTML;
   btn.innerHTML = "⏳ Sigan Ai sedang menulis laporan...";
   btn.disabled = true;
 
-  // 4. Susun perintah (Prompt) khusus untuk laporan
+  // 2. PERBAIKI INSTRUKSI AGAR PAKAI ENTER & SINKRON WILAYAH
   const promptLaporan = `Buatkan isi laporan kegiatan formal untuk Penyuluh KB. JANGAN buat narasi paragraf yang panjang.
+  
+  Detail Kegiatan:
+  - Butir SKP: ${namaSkp}
+  - Judul Laporan: ${judul}
+  - Tanggal: ${tgl}
+  - Waktu: ${waktu}
+  - Peserta: ${peserta}
+  - Wilayah Binaan: ${wilayah} (PENTING: Gunakan nama wilayah ini di dalam teks laporan, jangan pakai nama wilayah lain!)
 
-Detail Kegiatan:
-- Butir SKP: ${namaSkp}
-- Judul Laporan: ${judul}
-- Tanggal: ${tgl}
-- Waktu: ${waktu}
-- Peserta: ${peserta}
+  Format WAJIB:
+  1. Awali dengan 1 paragraf singkat mengenai tujuan kegiatan.
+  2. Tulis "Adapun rangkaian pelaksanaan kegiatan adalah sebagai berikut:" lalu buatkan POIN-POIN (pakai angka 1, 2, 3). 
+  3. WAJIB: Setiap poin harus dipisahkan dengan karakter ENTER (baris baru). JANGAN digabung jadi satu paragraf panjang!
+  
+  PENTING: 
+  - JANGAN tulis judul, kop, atau kata pengantar apapun.
+  - JANGAN buat bagian "Hasil Pelaksanaan" sama sekali.`;
 
-Format WAJIB:
-1. Awali dengan 1 paragraf singkat mengenai tujuan kegiatan.
-2. Tulis "Adapun rangkaian pelaksanaan kegiatan adalah sebagai berikut:" lalu buatkan POIN-POIN (pakai angka 1, 2, 3) yang tersusun ke bawah untuk menjelaskan materi/kegiatan. Jangan digabung jadi satu paragraf!
-
-PENTING: 
-- JANGAN tulis judul, kop, atau kata pengantar apapun.
-- JANGAN buat bagian "Hasil Pelaksanaan" sama sekali, karena template PDF sudah menyediakannya.`;
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`, {
       method: 'POST',
@@ -826,15 +830,15 @@ PENTING:
     const data = await response.json();
 
     if (response.ok && data.candidates && data.candidates[0].content.parts[0].text) {
-      // 5. Masukkan hasil AI ke dalam textarea
-      document.getElementById('lIsi').value = data.candidates[0].content.parts[0].text;
+      // 3. RAPIKAN HASILNYA (Pastikan enter dari AI terbaca oleh form)
+      let teksAI = data.candidates[0].content.parts[0].text;
+      document.getElementById('lIsi').value = teksAI;
     } else {
       alert("Gagal: " + (data.error ? data.error.message : "Error tidak diketahui"));
     }
   } catch (error) {
     alert("Gagal terhubung. Periksa sinyal internet Bosku.");
   } finally {
-    // 6. Kembalikan tombol ke semula
     btn.innerHTML = originalText;
     btn.disabled = false;
   }
